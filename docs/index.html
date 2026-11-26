@@ -60,35 +60,74 @@ details{background:var(--panel);border:1px solid var(--line);border-radius:12px;
 details summary{color:var(--text);font-weight:600;cursor:pointer}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--accent);color:#06111f;font-weight:700;padding:8px 14px;border-radius:999px;opacity:0;transition:opacity .2s;pointer-events:none}
 .toast.on{opacity:1}
+
+.tabs{display:flex;gap:4px;margin-top:10px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:none;background:transparent;color:var(--muted);border:1px solid transparent;border-bottom:none;border-radius:8px 8px 0 0;padding:8px 14px;font:inherit;font-size:14px;cursor:pointer}
+.tabs button.active{background:var(--bg);color:var(--text);border-color:var(--line)}
+.view{display:none} .view.active{display:block}
+main{max-width:1250px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}
+.card{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px}
+.card.sig-buy{border-color:var(--buy);box-shadow:0 0 0 1px var(--buy) inset}
+.card.sig-sell{border-color:var(--sell);box-shadow:0 0 0 1px var(--sell) inset}
+.card.test{border-style:dashed}
+.card h3{margin:0 0 4px;font-size:16px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.card .price{font-variant-numeric:tabular-nums;font-size:15px;font-weight:400}
+.sub{color:var(--muted);font-size:12px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0}
+.stat{background:var(--panel);border-radius:6px;padding:6px 8px}
+.stat b{display:block;font-size:13px;font-variant-numeric:tabular-nums}
+.stat span{font-size:11px;color:var(--muted)}
+.sides{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.side{background:var(--panel);border-radius:8px;padding:8px}
+.side h4{margin:0 0 6px;font-size:12px;display:flex;justify-content:space-between}
+.side.buy h4{color:var(--buy)} .side.sell h4{color:var(--sell)}
+.sbar{height:5px;background:#0b0f14;border-radius:3px;overflow:hidden;margin-bottom:6px}
+.sbar i{display:block;height:100%}
+.side.buy .sbar i{background:var(--buy)} .side.sell .sbar i{background:var(--sell)}
+.cond{font-size:11.5px;display:flex;gap:5px;color:var(--muted)}
+.cond.ok{color:var(--text)} .cond .m{width:12px;flex:none} .cond.ok .m{color:var(--buy)}
+.bt-line{margin-top:8px;font-size:12px;color:var(--muted)}
+.strat{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:12.5px;margin:8px 0 12px}
 </style>
 </head>
 <body>
 <header>
   <div class="top"><h1>PRO4 Scanner</h1><span class="meta" id="cred"></span></div>
   <div class="meta"><span class="dot" id="dot"></span><span id="run">loading…</span></div>
-  <nav><a href="#open">Open trades</a><a href="#pairs">Pairs</a><a href="#journal">Journal</a><a href="#activity">Activity</a><a href="#rules">Rules</a></nav>
+  <div class="tabs"><button data-v="live" class="active">Live</button><button data-v="journal">Paper journal</button><button data-v="activity">Activity</button><button data-v="rules">Rules</button></div>
 </header>
 <main>
   <div id="err"></div>
-  <h2 id="open">Open paper trades</h2>
-  <div id="openList"></div>
-  <h2 id="pairs">Pairs</h2>
-  <div class="pairs" id="pairList"></div>
-  <h2 id="journal">Journal</h2>
-  <div class="kpis" id="kpis"></div>
-  <div id="testBox" style="margin-top:8px"></div>
-  <div id="jlist" style="margin-top:10px"></div>
-  <h2 id="activity">Activity</h2>
-  <div class="log" id="log"></div>
-  <h2 id="rules">Rules</h2>
-  <details><summary>Connors RSI-2 (EUR/USD, GBP/USD, USD/CHF, USD/JPY, EUR/JPY)</summary>
+  <section class="view active" id="v-live">
+    <div class="strat"><b>Strategies:</b> Connors RSI-2 (H1) on EUR/USD, GBP/USD, USD/CHF, USD/JPY, EUR/JPY · TEST (paper only): NZD/USD, EUR/CHF · checks each hourly close 07:00–16:00 NY</div>
+    <h2 id="open" style="margin-top:4px">Open paper trades</h2>
+    <div id="openList"></div>
+    <h2 id="pairs">Pairs</h2>
+    <div class="cards" id="pairList"></div>
+  </section>
+  <section class="view" id="v-journal">
+    <h2>Paper journal</h2>
+    <div class="kpis" id="kpis"></div>
+    <div id="testBox" style="margin-top:8px"></div>
+    <div id="jlist" style="margin-top:10px"></div>
+  </section>
+  <section class="view" id="v-activity">
+    <h2>Activity</h2>
+    <div class="log" id="log"></div>
+  </section>
+  <section class="view" id="v-rules">
+    <h2>Rules</h2>
+    <details><summary>Connors RSI-2 (EUR/USD, GBP/USD, USD/CHF, USD/JPY, EUR/JPY)</summary>
     <p>At an hourly close between <b>07:00 and 16:00 NY</b>: <b>BUY</b> when price is above its 200-hour average, RSI(2) is below 5 and ADX is above 25. <b>SELL</b> is the mirror image. TP = 75% of the way to the 5-hour average. SL = 2× hourly ATR. Set both in MT4 and leave the trade alone. Backtest (9 months, after costs): about 86–89% winners.</p></details>
-  <details><summary>NZD/USD · TEST (paper only until it passes)</summary>
+    <details><summary>NZD/USD · TEST (paper only until it passes)</summary>
     <p>H1 above the 200-hour average, RSI(2) below 15, Stochastic(14) in the bottom 15%, and a bullish 5-minute candle at the hourly close, NY 07–16. TP = $3 net at 0.03 lot, SL = 4× the TP, close by hand after 24h. SELL is the mirror image.</p></details>
-  <details><summary>EUR/CHF · TEST (paper only until it passes)</summary>
+    <details><summary>EUR/CHF · TEST (paper only until it passes)</summary>
     <p>H1 Stochastic(14,3,3) crosses up below 20 (or down above 80), ADX above 25, and Bollinger width in its top 30%, NY 07–16. TP = 0.5× hourly ATR, SL = 2× ATR, close by hand after 72h.</p></details>
-  <details><summary>How TEST pairs pass</summary>
+    <details><summary>How TEST pairs pass</summary>
     <p>They show <b>T</b> while testing. After <b>15+ live paper trades with 80%+ wins and a profit</b>, the grade becomes a letter (A/B/C), the badge says <b>PASSED</b>, and you get a phone alert. If one is under 70% wins or losing money after 10+ trades, it shows <b>D · failing</b>, and you should switch it off in config.json.</p></details>
+  </section>
 </main>
 <div class="toast" id="toast">Copied</div>
 <script>
@@ -131,22 +170,30 @@ async function load(){
   const closed = J.filter(j => ["TP","SL","TIME"].includes(j.status));
   $("pairList").innerHTML = Object.entries(st.pairs || {}).map(([pair, ps]) => {
     const e = ps.eval, d = dg(pair), mine = closed.filter(j => j.pair === pair);
-    let badge = '<span class="badge b-live">LIVE</span>', grade = "";
-    if(ps.test){ const tg = testGrade((st.tests||{})[pair], rules); badge = tg.badge; grade = `<span class="grade ${tg.cls}">${tg.g}</span>`; }
-    const bp = e ? Math.round(e.buy.filter(Boolean).length/e.buy.length*100) : 0, sp = e ? Math.round(e.sell.filter(Boolean).length/e.sell.length*100) : 0;
-    const sig = e && e.signal ? `<b style="color:${e.signal==="BUY"?"var(--buy)":"var(--sell)"}">${e.signal}</b>` : "";
-    const rec = mine.length ? `${mine.length} live · ${Math.round(mine.filter(j=>j.pips>0).length/mine.length*100)}% wins` : "no live trades yet";
-    const vals = e ? Object.entries({"RSI(2)":e.rsi2, "ADX":e.adx, "Stoch":e.stoch ?? e.stoch_k, "BB width":e.bb_width_rank != null ? e.bb_width_rank+"%" : null, "Trend":e.trend, "ATR":e.atr_pips != null ? e.atr_pips.toFixed(1)+"p" : null})
-                     .filter(([,v]) => v != null).map(([k,v]) => `<span>${k} <b>${v}</b></span>`).join("") : "";
-    const conds = e ? `<div class="conds"><div class="b"><h4>BUY ${bp}%</h4>${e.buy.map((ok,k) => `<div class="c ${ok?"ok":""}"><span class="m">${ok?"✓":"·"}</span>${e.buy_labels[k]}</div>`).join("")}</div>
-       <div class="s"><h4>SELL ${sp}%</h4>${e.sell.map((ok,k) => `<div class="c ${ok?"ok":""}"><span class="m">${ok?"✓":"·"}</span>${e.sell_labels[k]}</div>`).join("")}</div></div>` : "";
-    const tgTxt = ps.test ? `<div class="meta" style="margin-top:6px">${testGrade((st.tests||{})[pair], rules).txt}</div>` : "";
-    return `<div class="row ${openRows.has(pair)?"open":""}" data-p="${pair}">
-      <div class="r1"><span class="nm">${pair}</span>${badge}${grade}${sig}<span class="px">${ps.price ? ps.price.toFixed(d) : "—"}</span></div>
-      <div class="meter"><span style="width:62px">${e ? `B ${bp}% S ${sp}%` : ""}</span><div class="bar"><i style="width:${bp/2}%;background:var(--buy)"></i><i style="width:${sp/2}%;background:var(--sell);margin-left:auto"></i></div><span>${rec}</span></div>
-      <div class="detail"><div class="meta">${ps.strategy}${ps.note ? " · " + ps.note : ""}${e ? " · last hourly bar " + fmt(e.h1_start+60).slice(11) : ""}</div>${tgTxt}<div class="kv">${vals}</div>${conds}</div></div>`;
+    let badge = '<span class="badge b-live">LIVE</span>', grade = {g:"", cls:"", txt:""};
+    if(ps.test){ grade = testGrade((st.tests||{})[pair], rules); badge = grade.badge; }
+    const sig = e ? (e.signal === "BUY" ? "sig-buy" : e.signal === "SELL" ? "sig-sell" : "") : "";
+    const pct = a => Math.round(a.filter(Boolean).length / a.length * 100);
+    const side = (cls, title, arr, labels) => `<div class="side ${cls}"><h4><span>${title}</span><span>${pct(arr)}%</span></h4><div class="sbar"><i style="width:${pct(arr)}%"></i></div>
+      ${arr.map((ok,k) => `<div class="cond ${ok?"ok":""}"><span class="m">${ok?"✓":"·"}</span>${labels[k]}</div>`).join("")}</div>`;
+    const box = (v, l) => v == null ? "" : `<div class="stat"><b>${v}</b><span>${l}</span></div>`;
+    const stats = e ? `<div class="stats">${[
+        box(e.rsi2 != null ? e.rsi2 : null, "RSI(2) H1"),
+        box(e.adx != null ? Math.round(e.adx) : null, "ADX H1"),
+        box(e.stoch != null ? Math.round(e.stoch) : e.stoch_k != null ? Math.round(e.stoch_k) : null, "Stoch H1"),
+        box(e.bb_width_rank != null ? Math.round(e.bb_width_rank) + "%" : null, "BB width rank"),
+        box(e.trend ? (e.trend === "up" ? "Up" : "Down") : null, "vs 200-hr avg"),
+        box(e.atr_pips != null ? e.atr_pips.toFixed(1) + "p" : null, "ATR H1")].filter(Boolean).slice(0,4).join("")}</div>
+      <div class="sides">${side("buy","BUY setup",e.buy,e.buy_labels)}${side("sell","SELL setup",e.sell,e.sell_labels)}</div>` : "";
+    const status = ps.note || (ps.bar_time ? `Hourly bar ${e ? fmt(e.h1_start+60).slice(11) : ""} · data to ${fmt(ps.bar_time).slice(11)}` : "Not scanned yet");
+    const rec = mine.length ? `${mine.length} live trades · ${Math.round(mine.filter(j=>j.pips>0).length/mine.length*100)}% wins · ${money(mine.reduce((s,j)=>s+(j.usd||0),0))}` : "No live trades yet";
+    const gl = ps.test ? `<span class="grade ${grade.cls}">${grade.g}</span> ${grade.txt}` : `<span class="grade gQ">LIVE</span> ${rec}`;
+    return `<div class="card ${sig} ${ps.test && grade.g !== "A" && grade.g !== "B" && grade.g !== "C" ? "test" : ""}">
+      <h3><span>${pair} ${badge}</span><span class="price">${ps.price ? ps.price.toFixed(d) : "—"}</span></h3>
+      <div class="sub">${ps.strategy} · spread ${ps.spread}p + $${st.settings?.commission ?? 10}/lot</div>
+      <div class="sub">${status}</div>${stats}
+      <div class="bt-line">${gl}</div></div>`;
   }).join("") || `<div class="empty">Waiting for the first scan.</div>`;
-  document.querySelectorAll(".row").forEach(r => r.onclick = () => { const p = r.dataset.p; openRows.has(p) ? openRows.delete(p) : openRows.add(p); r.classList.toggle("open"); });
   // journal
   const kp = (list) => { const n = list.length, w = list.filter(j => j.pips > 0).length, usd = list.reduce((s,j) => s + (j.usd||0), 0); return {n, w, usd}; };
   const live = kp(closed.filter(j => !j.test)), tst = kp(closed.filter(j => j.test));
@@ -163,6 +210,11 @@ async function load(){
       <span class="s r">${j.exit_time ? "closed " + fmt(j.exit_time).slice(5) : "lot " + (+j.lots).toFixed(2)}</span></div>`; }).join("") || `<div class="empty">No paper trades yet.</div>`;
   $("log").innerHTML = (st.log || []).map(x => `<div>${x}</div>`).join("") || "Nothing yet.";
 }
+document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => {
+  document.querySelectorAll(".tabs button").forEach(x => x.classList.toggle("active", x === b));
+  document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === "v-" + b.dataset.v));
+  window.scrollTo(0, 0);
+});
 load(); setInterval(load, 60000);
 document.addEventListener("visibilitychange", () => { if(!document.hidden) load(); });
 </script>
