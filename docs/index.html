@@ -90,12 +90,16 @@ main{max-width:1250px}
 .cond.ok{color:var(--text)} .cond .m{width:12px;flex:none} .cond.ok .m{color:var(--buy)}
 .bt-line{margin-top:8px;font-size:12px;color:var(--muted)}
 .strat{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:12.5px;margin:8px 0 12px}
+.scanbtn{background:var(--accent);color:#06111f;font-weight:700;text-decoration:none;border-radius:8px;padding:6px 12px;font-size:13px;white-space:nowrap}
+.scanhint{display:none;background:var(--panel);border:1px solid var(--accent);border-radius:10px;padding:9px 12px;font-size:12.5px;color:var(--muted);margin-top:8px}
+.scanhint.on{display:block} .scanhint b{color:var(--text)}
 </style>
 </head>
 <body>
 <header>
-  <div class="top"><h1>PRO4 Scanner</h1><span class="meta" id="cred"></span></div>
+  <div class="top"><h1>PRO4 Scanner</h1><span style="display:flex;gap:8px;align-items:center"><span class="meta" id="cred"></span><a href="scanner.html" class="scanbtn" style="background:var(--panel2);color:var(--text);border:1px solid var(--line)">Live scanner</a><a id="scanBtn" class="scanbtn" target="_blank" rel="noopener">Scan now</a></span></div>
   <div class="meta"><span class="dot" id="dot"></span><span id="run">loading…</span></div>
+  <div class="scanhint" id="scanHint">GitHub opened in a new tab. Tap <b>Run workflow</b> → <b>Run workflow</b> (sign in to GitHub the first time). Fresh readings show here in about <b>2–3 minutes</b>, and this page refreshes itself.</div>
   <div class="tabs"><button data-v="live" class="active">Live</button><button data-v="journal">Paper journal</button><button data-v="activity">Activity</button><button data-v="rules">Rules</button></div>
 </header>
 <main>
@@ -150,8 +154,10 @@ function testGrade(t, rules){
 const openRows = new Set();
 async function load(){
   let st, J;
+  let BT = {pairs:{}};
   try{ [st, J] = await Promise.all([getJSON("status.json"), getJSON("journal.json")]); $("err").innerHTML = ""; }
   catch(e){ $("err").innerHTML = `<div class="empty">No data yet (${e.message}). If you just set this up, run the workflow once from the Actions tab.</div>`; return; }
+  try{ BT = await getJSON("backtest.json"); }catch(e){}
   const age = st.last_run ? Math.max(0, nowNY() - st.last_run) : null;
   $("run").textContent = st.last_run ? `Last scan ${st.last_run_text} · ${Math.round(age)} min ago` : "No scans yet";
   $("dot").className = "dot " + (age !== null && age < 90 ? "ok" : "bad");
@@ -187,7 +193,10 @@ async function load(){
       <div class="sides">${side("buy","BUY setup",e.buy,e.buy_labels)}${side("sell","SELL setup",e.sell,e.sell_labels)}</div>` : "";
     const status = ps.note || (ps.bar_time ? `Hourly bar ${e ? fmt(e.h1_start+60).slice(11) : ""} · data to ${fmt(ps.bar_time).slice(11)}` : "Not scanned yet");
     const rec = mine.length ? `${mine.length} live trades · ${Math.round(mine.filter(j=>j.pips>0).length/mine.length*100)}% wins · ${money(mine.reduce((s,j)=>s+(j.usd||0),0))}` : "No live trades yet";
-    const gl = ps.test ? `<span class="grade ${grade.cls}">${grade.g}</span> ${grade.txt}` : `<span class="grade gQ">LIVE</span> ${rec}`;
+    const b = (BT.pairs || {})[pair];
+    const gl = ps.test ? `<span class="grade ${grade.cls}">${grade.g}</span> ${grade.txt}`
+      : (b ? `<span class="grade g${b.grade}">${b.grade}</span> ${b.tp_rate}% TP rate (95% range ${b.range}) over ${b.trades} trades · needs ~${Math.round(b.need)}% · +${b.avgR.toFixed(2)}R/trade` : `<span class="grade gQ">?</span> not backtested yet`)
+        + `<div class="sub" style="margin-top:4px">Live: ${rec}</div>`;
     return `<div class="card ${sig} ${ps.test && grade.g !== "A" && grade.g !== "B" && grade.g !== "C" ? "test" : ""}">
       <h3><span>${pair} ${badge}</span><span class="price">${ps.price ? ps.price.toFixed(d) : "—"}</span></h3>
       <div class="sub">${ps.strategy} · spread ${ps.spread}p + $${st.settings?.commission ?? 10}/lot</div>
@@ -215,6 +224,11 @@ document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => {
   document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === "v-" + b.dataset.v));
   window.scrollTo(0, 0);
 });
+(function(){
+  const user = location.hostname.split(".")[0], repo = location.pathname.split("/").filter(Boolean)[0] || "pro4-scanner";
+  const a = $("scanBtn"); a.href = `https://github.com/${user}/${repo}/actions/workflows/scan.yml`;
+  a.addEventListener("click", () => { $("scanHint").classList.add("on"); let n = 0; const t = setInterval(() => { load(); if(++n > 8){ clearInterval(t); $("scanHint").classList.remove("on"); } }, 30000); });
+})();
 load(); setInterval(load, 60000);
 document.addEventListener("visibilitychange", () => { if(!document.hidden) load(); });
 </script>

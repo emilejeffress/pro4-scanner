@@ -76,6 +76,7 @@ def run(now=None, fetch=None, notify=None, quiet=False):
     credits = state["credits"].get(day, 0); log = []; pairs_status = {}
     last_h1_close = int(now // 60) * 60
     max_entry = cfg.get("max_entry_delay_minutes", cfg["max_signal_delay_minutes"])
+    force = os.environ.get("FORCE_SCAN") == "1"      # manual "Run workflow": refresh every pair's readings
     for pair, pc in cfg["pairs"].items():
         if not pc.get("on"): continue
         strat = pc.get("strategy", "connors"); test = bool(pc.get("test"))
@@ -84,7 +85,7 @@ def run(now=None, fetch=None, notify=None, quiet=False):
         open_tr = state["open"].get(pair)
         needs_eval = (state["last_eval"].get(pair, 0) < last_h1_close and S.in_window(last_h1_close % 1440, ses)
                       and S.market_open(last_h1_close - 5) and now - last_h1_close <= cfg["max_signal_delay_minutes"])
-        if not open_tr and not needs_eval:
+        if not open_tr and not needs_eval and not force:
             prev = status.get("pairs", {}).get(pair, {})
             prev.update(info, note="Outside session" if not S.in_window(int(now) % 1440, ses) else "Waiting for the next hourly close")
             pairs_status[pair] = prev; continue
@@ -171,7 +172,7 @@ def run(now=None, fetch=None, notify=None, quiet=False):
         pairs_status[pair] = dict(info, price=price, bar_time=int(bars["t"][last] + 5), note="", eval=ev)
     state["credits"] = {day: credits}
     test_info = {p: dict(zip(("state", "stats"), S.test_status(journal, p))) for p, pc in cfg["pairs"].items() if pc.get("on") and pc.get("test")}
-    status = dict(last_run=int(now), last_run_text=fmt(now) + " NY", credits_today=credits, pairs=pairs_status, open=state["open"],
+    status = dict(last_run=int(now), last_run_text=fmt(now) + " NY" + (" (manual)" if force else ""), credits_today=credits, pairs=pairs_status, open=state["open"],
                   log=(log + status.get("log", []))[:60], tests=test_info, test_rules=S.TEST_RULES, strategy=cfg["strategy"],
                   settings=dict(lot=cfg.get("fixed_lot"), commission=cfg["commission_usd_per_lot_round_trip"]))
     save("journal.json", journal); save("state.json", state); save("status.json", status)

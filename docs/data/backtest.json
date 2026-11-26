@@ -1,0 +1,46 @@
+{
+ "as_of": "2026-11-26",
+ "note": "9 months of 5-minute data, after spread + $10/lot commission",
+ "pairs": {
+  "EUR/USD": {
+   "grade": "B",
+   "trades": 14,
+   "tp_rate": 85.7,
+   "range": "60\u201396%",
+   "need": 67.2,
+   "avgR": 0.23
+  },
+  "GBP/USD": {
+   "grade": "B",
+   "trades": 16,
+   "tp_rate": 87.5,
+   "range": "64\u201397%",
+   "need": 67.0,
+   "avgR": 0.28
+  },
+  "USD/CHF": {
+   "grade": "B",
+   "trades": 18,
+   "tp_rate": 88.9,
+   "range": "67\u201397%",
+   "need": 65.8,
+   "avgR": 0.3
+  },
+  "USD/JPY": {
+   "grade": "B",
+   "trades": 19,
+   "tp_rate": 89.5,
+   "range": "69\u201397%",
+   "need": 71.4,
+   "avgR": 0.24
+  },
+  "EUR/JPY": {
+   "grade": "B",
+   "trades": 21,
+   "tp_rate": 85.7,
+   "range": "65\u201395%",
+   "need": 72.4,
+   "avgR": 0.12
+  }
+ }
+}
