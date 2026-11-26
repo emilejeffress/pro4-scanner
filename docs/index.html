@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d1117">
+<meta name="mobile-web-app-capable" content="yes">
+<title>PRO4 Scanner</title>
+<style>
+:root{--bg:#0d1117;--panel:#161b22;--panel2:#1c2330;--line:#2a3342;--text:#e6edf3;--muted:#8b98a9;--buy:#2ecc71;--sell:#ff5c5c;--warn:#f5b942;--accent:#4ea1ff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:env(safe-area-inset-bottom)}
+header{position:sticky;top:0;z-index:5;background:rgba(22,27,34,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:calc(10px + env(safe-area-inset-top)) 14px 10px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+h1{font-size:17px;margin:0;letter-spacing:.2px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;background:var(--muted)}
+.dot.ok{background:var(--buy);box-shadow:0 0 8px var(--buy)} .dot.bad{background:var(--sell)}
+.meta{font-size:12px;color:var(--muted);margin-top:3px}
+nav{display:flex;gap:6px;margin-top:9px;overflow-x:auto;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav a{flex:none;padding:6px 12px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);color:var(--muted);text-decoration:none;font-size:13px}
+main{max-width:760px;margin:0 auto;padding:6px 12px 40px}
+h2{font-size:12.5px;color:var(--accent);text-transform:uppercase;letter-spacing:.7px;margin:20px 2px 8px}
+.empty{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;color:var(--muted);font-size:13.5px}
+.trade{background:var(--panel2);border:1px solid var(--line);border-left:5px solid var(--warn);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.trade.BUY{border-left-color:var(--buy)} .trade.SELL{border-left-color:var(--sell)}
+.trade .t1{display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:16px}
+.lv{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.lv div{background:var(--panel);border-radius:9px;padding:8px;text-align:center;cursor:pointer}
+.lv b{display:block;font-size:15.5px;font-variant-numeric:tabular-nums} .lv span{font-size:11px;color:var(--muted)}
+.badge{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:999px;border:1px solid;letter-spacing:.3px;vertical-align:middle}
+.b-test{color:var(--warn);border-color:var(--warn)} .b-pass{color:var(--buy);border-color:var(--buy)} .b-fail{color:var(--sell);border-color:var(--sell)} .b-live{color:var(--accent);border-color:var(--accent)}
+.pairs{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.row{padding:11px 14px;border-bottom:1px solid var(--line);cursor:pointer}
+.row:last-child{border-bottom:none}
+.row .r1{display:flex;align-items:center;gap:8px}
+.row .nm{font-weight:700;min-width:74px}
+.row .px{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--muted);font-size:13.5px}
+.grade{display:inline-block;min-width:22px;text-align:center;border-radius:6px;padding:0 6px;font-weight:800;font-size:12px}
+.gA{background:var(--buy);color:#042} .gB{background:#7bd88f;color:#042} .gC{background:var(--warn);color:#331f00} .gD{background:var(--sell);color:#300} .gQ{background:var(--line);color:var(--text)}
+.meter{display:flex;gap:6px;margin-top:7px;align-items:center;font-size:12px;color:var(--muted)}
+.bar{flex:1;height:6px;background:#0b0f14;border-radius:3px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.detail{display:none;margin-top:9px;font-size:12.5px}
+.row.open .detail{display:block}
+.conds{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.conds h4{margin:0 0 4px;font-size:12px} .conds .b h4{color:var(--buy)} .conds .s h4{color:var(--sell)}
+.c{color:var(--muted)} .c.ok{color:var(--text)} .c .m{display:inline-block;width:14px} .c.ok .m{color:var(--buy)}
+.kv{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.kv span{background:var(--panel2);border-radius:7px;padding:3px 8px;font-size:12px}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+@media(min-width:620px){.kpis{grid-template-columns:repeat(4,1fr)}}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.kpi b{display:block;font-size:18px;font-variant-numeric:tabular-nums} .kpi span{font-size:11.5px;color:var(--muted)}
+.pos{color:var(--buy)} .neg{color:var(--sell)}
+.jitem{display:grid;grid-template-columns:1fr auto;gap:2px 10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin-bottom:7px;font-size:13px}
+.jitem .a{font-weight:700} .jitem .r{text-align:right;font-variant-numeric:tabular-nums} .jitem .s{color:var(--muted);font-size:11.5px}
+.log{font:12px/1.6 ui-monospace,Consolas,monospace;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;max-height:260px;overflow:auto}
+details{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px;color:var(--muted);font-size:13px;margin-bottom:8px}
+details summary{color:var(--text);font-weight:600;cursor:pointer}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--accent);color:#06111f;font-weight:700;padding:8px 14px;border-radius:999px;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+</style>
+</head>
+<body>
+<header>
+  <div class="top"><h1>PRO4 Scanner</h1><span class="meta" id="cred"></span></div>
+  <div class="meta"><span class="dot" id="dot"></span><span id="run">loading…</span></div>
+  <nav><a href="#open">Open trades</a><a href="#pairs">Pairs</a><a href="#journal">Journal</a><a href="#activity">Activity</a><a href="#rules">Rules</a></nav>
+</header>
+<main>
+  <div id="err"></div>
+  <h2 id="open">Open paper trades</h2>
+  <div id="openList"></div>
+  <h2 id="pairs">Pairs</h2>
+  <div class="pairs" id="pairList"></div>
+  <h2 id="journal">Journal</h2>
+  <div class="kpis" id="kpis"></div>
+  <div id="testBox" style="margin-top:8px"></div>
+  <div id="jlist" style="margin-top:10px"></div>
+  <h2 id="activity">Activity</h2>
+  <div class="log" id="log"></div>
+  <h2 id="rules">Rules</h2>
+  <details><summary>Connors RSI-2 (EUR/USD, GBP/USD, USD/CHF, USD/JPY, EUR/JPY)</summary>
+    <p>At an hourly close between <b>07:00 and 16:00 NY</b>: <b>BUY</b> when price is above its 200-hour average, RSI(2) is below 5 and ADX is above 25. <b>SELL</b> is the mirror image. TP = 75% of the way to the 5-hour average. SL = 2× hourly ATR. Set both in MT4 and leave the trade alone. Backtest (9 months, after costs): about 86–89% winners.</p></details>
+  <details><summary>NZD/USD · TEST (paper only until it passes)</summary>
+    <p>H1 above the 200-hour average, RSI(2) below 15, Stochastic(14) in the bottom 15%, and a bullish 5-minute candle at the hourly close, NY 07–16. TP = $3 net at 0.03 lot, SL = 4× the TP, close by hand after 24h. SELL is the mirror image.</p></details>
+  <details><summary>EUR/CHF · TEST (paper only until it passes)</summary>
+    <p>H1 Stochastic(14,3,3) crosses up below 20 (or down above 80), ADX above 25, and Bollinger width in its top 30%, NY 07–16. TP = 0.5× hourly ATR, SL = 2× ATR, close by hand after 72h.</p></details>
+  <details><summary>How TEST pairs pass</summary>
+    <p>They show <b>T</b> while testing. After <b>15+ live paper trades with 80%+ wins and a profit</b>, the grade becomes a letter (A/B/C), the badge says <b>PASSED</b>, and you get a phone alert. If one is under 70% wins or losing money after 10+ trades, it shows <b>D · failing</b>, and you should switch it off in config.json.</p></details>
+</main>
+<div class="toast" id="toast">Copied</div>
+<script>
+const $ = id => document.getElementById(id);
+const fmt = t => { const d = new Date(t*60000), p = n => String(n).padStart(2,"0"); return `${d.getUTCFullYear()}-${p(d.getUTCMonth()+1)}-${p(d.getUTCDate())} ${p(d.getUTCHours())}:${p(d.getUTCMinutes())}`; };
+const dg = pair => pair.includes("JPY") ? 3 : 5;
+const sg = (v, d=1) => (v>=0?"+":"") + v.toFixed(d);
+const money = v => (v<0?"−$":"$") + Math.abs(v).toFixed(2);
+const nowNY = () => { const p = {}; new Intl.DateTimeFormat("en-US",{timeZone:"America/New_York",hourCycle:"h23",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}).formatToParts(new Date()).forEach(x => p[x.type]=x.value); return Date.UTC(+p.year,+p.month-1,+p.day,(+p.hour)%24,+p.minute)/60000; };
+async function getJSON(f){ const r = await fetch(`data/${f}?v=${Date.now()}`, {cache:"no-store"}); if(!r.ok) throw new Error(f+" "+r.status); return r.json(); }
+function toast(msg){ const t = $("toast"); t.textContent = msg; t.classList.add("on"); setTimeout(() => t.classList.remove("on"), 1100); }
+function copy(v){ try{ navigator.clipboard.writeText(v).then(() => toast("Copied " + v)); }catch(e){} }
+function testGrade(t, rules){
+  if(!t) return {g:"T", cls:"gQ", txt:"Testing"};
+  const s = t.stats, line = `${s.n} live trades · ${Math.round(s.win*100)}% wins · ${sg(s.avgR,2)}R`;
+  if(t.state === "passed"){ const g = s.n >= 20 && s.avgR >= .15 ? "A" : s.avgR >= .05 ? "B" : "C"; return {g, cls:"g"+g, txt:"Passed: " + line, badge:'<span class="badge b-pass">PASSED</span>'}; }
+  if(t.state === "failing") return {g:"D", cls:"gD", txt:"Failing: " + line + ". Consider switching it off.", badge:'<span class="badge b-fail">FAILING</span>'};
+  return {g:"T", cls:"gQ", txt:`Testing ${Math.min(s.n, rules.min_trades)}/${rules.min_trades} live trades` + (s.n ? ` · ${Math.round(s.win*100)}% wins · ${sg(s.avgR,2)}R` : ""), badge:'<span class="badge b-test">TEST</span>'};
+}
+const openRows = new Set();
+async function load(){
+  let st, J;
+  try{ [st, J] = await Promise.all([getJSON("status.json"), getJSON("journal.json")]); $("err").innerHTML = ""; }
+  catch(e){ $("err").innerHTML = `<div class="empty">No data yet (${e.message}). If you just set this up, run the workflow once from the Actions tab.</div>`; return; }
+  const age = st.last_run ? Math.max(0, nowNY() - st.last_run) : null;
+  $("run").textContent = st.last_run ? `Last scan ${st.last_run_text} · ${Math.round(age)} min ago` : "No scans yet";
+  $("dot").className = "dot " + (age !== null && age < 90 ? "ok" : "bad");
+  $("cred").textContent = `${st.credits_today ?? 0}/800 credits`;
+  const rules = st.test_rules || {min_trades:15};
+  // open trades
+  const op = Object.values(st.open || {});
+  $("openList").innerHTML = op.length ? op.map(t => { const d = dg(t.pair), tg = t.test ? testGrade((st.tests||{})[t.pair], rules) : null;
+    return `<div class="trade ${t.side}"><div class="t1"><span style="color:${t.side==="BUY"?"var(--buy)":"var(--sell)"}">${t.side} ${t.pair} ${tg ? tg.badge : ""}</span><span class="meta">lot ${(+t.lots).toFixed(2)}</span></div>
+      <div class="lv"><div onclick="copy('${t.entry.toFixed(d)}')"><b>${t.entry.toFixed(d)}</b><span>entry</span></div>
+      <div onclick="copy('${t.tp.toFixed(d)}')"><b class="pos">${t.tp.toFixed(d)}</b><span>TP +${t.tp_pips}p · tap to copy</span></div>
+      <div onclick="copy('${t.sl.toFixed(d)}')"><b class="neg">${t.sl.toFixed(d)}</b><span>SL −${t.sl_pips}p · tap to copy</span></div></div>
+      <div class="meta" style="margin-top:8px">Signal ${fmt(t.signal_time)} NY${t.hold_bars ? ` · close by hand after ${t.hold_bars/12}h if neither hits` : ""}</div></div>`; }).join("")
+    : `<div class="empty">No open trades. Signals come at hourly closes, 07:00–16:00 NY.</div>`;
+  // pairs
+  const closed = J.filter(j => ["TP","SL","TIME"].includes(j.status));
+  $("pairList").innerHTML = Object.entries(st.pairs || {}).map(([pair, ps]) => {
+    const e = ps.eval, d = dg(pair), mine = closed.filter(j => j.pair === pair);
+    let badge = '<span class="badge b-live">LIVE</span>', grade = "";
+    if(ps.test){ const tg = testGrade((st.tests||{})[pair], rules); badge = tg.badge; grade = `<span class="grade ${tg.cls}">${tg.g}</span>`; }
+    const bp = e ? Math.round(e.buy.filter(Boolean).length/e.buy.length*100) : 0, sp = e ? Math.round(e.sell.filter(Boolean).length/e.sell.length*100) : 0;
+    const sig = e && e.signal ? `<b style="color:${e.signal==="BUY"?"var(--buy)":"var(--sell)"}">${e.signal}</b>` : "";
+    const rec = mine.length ? `${mine.length} live · ${Math.round(mine.filter(j=>j.pips>0).length/mine.length*100)}% wins` : "no live trades yet";
+    const vals = e ? Object.entries({"RSI(2)":e.rsi2, "ADX":e.adx, "Stoch":e.stoch ?? e.stoch_k, "BB width":e.bb_width_rank != null ? e.bb_width_rank+"%" : null, "Trend":e.trend, "ATR":e.atr_pips != null ? e.atr_pips.toFixed(1)+"p" : null})
+                     .filter(([,v]) => v != null).map(([k,v]) => `<span>${k} <b>${v}</b></span>`).join("") : "";
+    const conds = e ? `<div class="conds"><div class="b"><h4>BUY ${bp}%</h4>${e.buy.map((ok,k) => `<div class="c ${ok?"ok":""}"><span class="m">${ok?"✓":"·"}</span>${e.buy_labels[k]}</div>`).join("")}</div>
+       <div class="s"><h4>SELL ${sp}%</h4>${e.sell.map((ok,k) => `<div class="c ${ok?"ok":""}"><span class="m">${ok?"✓":"·"}</span>${e.sell_labels[k]}</div>`).join("")}</div></div>` : "";
+    const tgTxt = ps.test ? `<div class="meta" style="margin-top:6px">${testGrade((st.tests||{})[pair], rules).txt}</div>` : "";
+    return `<div class="row ${openRows.has(pair)?"open":""}" data-p="${pair}">
+      <div class="r1"><span class="nm">${pair}</span>${badge}${grade}${sig}<span class="px">${ps.price ? ps.price.toFixed(d) : "—"}</span></div>
+      <div class="meter"><span style="width:62px">${e ? `B ${bp}% S ${sp}%` : ""}</span><div class="bar"><i style="width:${bp/2}%;background:var(--buy)"></i><i style="width:${sp/2}%;background:var(--sell);margin-left:auto"></i></div><span>${rec}</span></div>
+      <div class="detail"><div class="meta">${ps.strategy}${ps.note ? " · " + ps.note : ""}${e ? " · last hourly bar " + fmt(e.h1_start+60).slice(11) : ""}</div>${tgTxt}<div class="kv">${vals}</div>${conds}</div></div>`;
+  }).join("") || `<div class="empty">Waiting for the first scan.</div>`;
+  document.querySelectorAll(".row").forEach(r => r.onclick = () => { const p = r.dataset.p; openRows.has(p) ? openRows.delete(p) : openRows.add(p); r.classList.toggle("open"); });
+  // journal
+  const kp = (list) => { const n = list.length, w = list.filter(j => j.pips > 0).length, usd = list.reduce((s,j) => s + (j.usd||0), 0); return {n, w, usd}; };
+  const live = kp(closed.filter(j => !j.test)), tst = kp(closed.filter(j => j.test));
+  $("kpis").innerHTML = `
+    <div class="kpi"><b>${live.n}</b><span>live-strategy trades closed</span></div>
+    <div class="kpi"><b>${live.n ? Math.round(live.w/live.n*100)+"%" : "–"}</b><span>win rate (Connors)</span></div>
+    <div class="kpi"><b class="${live.usd>=0?"pos":"neg"}">${live.n ? money(live.usd) : "–"}</b><span>paper P/L at ${(st.settings?.lot ?? 0.03).toFixed(2)} lot</span></div>
+    <div class="kpi"><b class="${tst.usd>=0?"pos":"neg"}">${tst.n ? money(tst.usd) : "–"}</b><span>TEST pairs P/L (${tst.n} trades)</span></div>`;
+  $("testBox").innerHTML = Object.entries(st.tests || {}).map(([p,t]) => { const g = testGrade(t, rules); return `<div class="empty" style="margin-bottom:6px"><span class="grade ${g.cls}">${g.g}</span> <b>${p}</b> · ${g.txt}</div>`; }).join("");
+  $("jlist").innerHTML = J.slice(0, 100).map(j => { const d = dg(j.pair), cls = (j.pips||0) >= 0 ? "pos" : "neg";
+    return `<div class="jitem"><span class="a" style="color:${j.side==="BUY"?"var(--buy)":"var(--sell)"}">${j.side} ${j.pair}${j.test ? ' <span class="badge b-test">TEST</span>' : ""}</span>
+      <span class="r ${j.status==="OPEN"?"":cls}">${j.status==="OPEN" ? '<span style="color:var(--warn)">OPEN</span>' : `${j.status} ${sg(j.pips)}p · ${money(j.usd||0)}`}</span>
+      <span class="s">${fmt(j.signal_time)} · entry ${j.entry.toFixed(d)} · TP ${j.tp.toFixed(d)} · SL ${j.sl.toFixed(d)}</span>
+      <span class="s r">${j.exit_time ? "closed " + fmt(j.exit_time).slice(5) : "lot " + (+j.lots).toFixed(2)}</span></div>`; }).join("") || `<div class="empty">No paper trades yet.</div>`;
+  $("log").innerHTML = (st.log || []).map(x => `<div>${x}</div>`).join("") || "Nothing yet.";
+}
+load(); setInterval(load, 60000);
+document.addEventListener("visibilitychange", () => { if(!document.hidden) load(); });
+</script>
+</body>
+</html>
