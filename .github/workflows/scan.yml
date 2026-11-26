@@ -30,6 +30,7 @@ jobs:
         env:
           TWELVE_DATA_KEY: ${{ secrets.TWELVE_DATA_KEY }}
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          FORCE_SCAN: ${{ github.event_name == 'workflow_dispatch' && '1' || '' }}
         run: python scanner/scan.py
       - name: Save results
         run: |
