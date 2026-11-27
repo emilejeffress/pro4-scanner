@@ -1925,7 +1925,10 @@ function renderAccountSim(){
   const trades = state.btTrades.filter(t => (S.simTest || !isAlt(t.pair)) && S.pairs[t.pair] && S.pairs[t.pair].on);
   const cv = $("simChart"), ctx = cv.getContext("2d"); ctx.clearRect(0, 0, cv.width, cv.height);
   if(!trades.length){
-    $("simOut").innerHTML = `<div class="note">${state.btTrades.length ? "No trades for the pairs selected." : "Run the backtest above first. The simulator replays its trades in dollars."}</div>`;
+    const saved = PAIRS.filter(p => state.cacheMeta[p]).length;
+    $("simOut").innerHTML = `<div class="note">${state.btTrades.length ? "No trades for the pairs selected. Tick “Include TEST pairs” or switch pairs on in Settings."
+      : saved ? "Press <b>Run backtest</b> above. The simulator replays its trades in dollars."
+      : "No history saved on this device yet. Use <b>Download history</b> (step 1), then <b>Run backtest</b>."}</div>`;
     $("simLegend").textContent = ""; return;
   }
   // replay in order of exit time; P/L scales with lot size (pips already include spread + commission)
@@ -1989,6 +1992,15 @@ function renderAccountSim(){
   persist(); renderAccountSim();
 }));
 fillSim(); renderAccountSim();
+(async () => {
+  try{
+    if(state.btTrades.length) return;
+    const have = PAIRS.filter(p => state.S.pairs[p].on && state.cacheMeta[p]);
+    if(!have.length) return;
+    $("simOut").innerHTML = `<div class="note">Loading your saved backtest…</div>`;
+    await runBacktest();
+  }catch(e){ $("simOut").innerHTML = `<div class="note">Couldn't reload the backtest (${esc(e.message||e)}). Press Run backtest.</div>`; }
+})();
 
 </script>
 </body>
