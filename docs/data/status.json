@@ -1,29 +1,29 @@
 {
- "last_run": 29929375,
- "last_run_text": "2026-11-27 06:55 NY",
- "credits_today": 0,
+ "last_run": 29929450,
+ "last_run_text": "2026-11-27 08:10 NY",
+ "credits_today": 1,
  "pairs": {
   "EUR/USD": {
    "strategy": "Connors RSI-2 (H1)",
    "test": false,
    "spread": 1.0,
-   "price": 1.09657,
-   "bar_time": 29928680,
-   "note": "Outside session",
+   "price": 1.09597,
+   "bar_time": 29929450,
+   "note": "",
    "eval": {
-    "close_time": 29928660,
-    "h1_start": 29928600,
+    "close_time": 29929440,
+    "h1_start": 29929380,
     "buy": [
-     false,
      true,
      false,
-     true
+     false,
+     false
     ],
     "sell": [
+     true,
+     true,
      false,
-     false,
-     false,
-     true
+     false
     ],
     "buy_labels": [
      "Hourly close in session",
@@ -38,10 +38,10 @@
      "ADX > 25"
     ],
     "signal": null,
-    "atr_pips": 7.135714285714086,
-    "rsi2": 37.4,
-    "adx": 26.4,
-    "trend": "up"
+    "atr_pips": 9.942857142857095,
+    "rsi2": 64.6,
+    "adx": 18.8,
+    "trend": "down"
    }
   },
   "GBP/USD": {
@@ -50,7 +50,7 @@
    "spread": 1.4,
    "price": 1.3101,
    "bar_time": 29928680,
-   "note": "Outside session",
+   "note": "Data error: HTTP Error 429: Too Many Requests",
    "eval": {
     "close_time": 29928660,
     "h1_start": 29928600,
@@ -91,7 +91,7 @@
    "spread": 1.6,
    "price": 0.83465,
    "bar_time": 29928680,
-   "note": "Outside session",
+   "note": "Data error: HTTP Error 429: Too Many Requests",
    "eval": {
     "close_time": 29928660,
     "h1_start": 29928600,
@@ -132,7 +132,7 @@
    "spread": 1.3,
    "price": 159.36465,
    "bar_time": 29928680,
-   "note": "Outside session",
+   "note": "Data error: HTTP Error 429: Too Many Requests",
    "eval": {
     "close_time": 29928660,
     "h1_start": 29928600,
@@ -173,7 +173,7 @@
    "spread": 1.6,
    "price": 174.73762,
    "bar_time": 29928680,
-   "note": "Outside session",
+   "note": "Data error: HTTP Error 429: Too Many Requests",
    "eval": {
     "close_time": 29928660,
     "h1_start": 29928600,
@@ -214,7 +214,7 @@
    "spread": 1.6,
    "price": 0.54658,
    "bar_time": 29928680,
-   "note": "Outside session",
+   "note": "Data error: HTTP Error 429: Too Many Requests",
    "eval": {
     "close_time": 29928660,
     "h1_start": 29928600,
@@ -259,7 +259,7 @@
    "spread": 1.8,
    "price": 0.91522,
    "bar_time": 29928680,
-   "note": "Outside session",
+   "note": "Data error: HTTP Error 429: Too Many Requests",
    "eval": {
     "close_time": 29928660,
     "h1_start": 29928600,
@@ -296,7 +296,14 @@
   }
  },
  "open": {},
- "log": [],
+ "log": [
+  "2026-11-27 08:10 GBP/USD: data error HTTP Error 429: Too Many Requests",
+  "2026-11-27 08:10 USD/CHF: data error HTTP Error 429: Too Many Requests",
+  "2026-11-27 08:10 USD/JPY: data error HTTP Error 429: Too Many Requests",
+  "2026-11-27 08:10 EUR/JPY: data error HTTP Error 429: Too Many Requests",
+  "2026-11-27 08:10 NZD/USD: data error HTTP Error 429: Too Many Requests",
+  "2026-11-27 08:10 EUR/CHF: data error HTTP Error 429: Too Many Requests"
+ ],
  "tests": {
   "NZD/USD": {
    "state": "testing",
