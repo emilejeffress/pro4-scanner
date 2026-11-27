@@ -1,0 +1,2017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PRO4 Reversal — Live Scanner & Strategy Lab</title>
+<style>
+:root{--bg:#0d1117;--panel:#161b22;--panel2:#1c2330;--line:#2a3342;--text:#e6edf3;--muted:#8b98a9;--buy:#2ecc71;--sell:#ff5c5c;--warn:#f5b942;--accent:#4ea1ff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:5}
+h1{font-size:17px;margin:0}
+h1 small{color:var(--muted);font-weight:400;margin-left:6px}
+.hdr-right{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.clock{font-variant-numeric:tabular-nums;color:var(--muted)}
+.pill{padding:3px 10px;border-radius:999px;font-size:12px;border:1px solid var(--line);color:var(--muted)}
+.pill.on{color:var(--buy);border-color:var(--buy)} .pill.err{color:var(--sell);border-color:var(--sell)}
+button{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:7px 14px;cursor:pointer;font:inherit}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#06111f;font-weight:600}
+button.danger{border-color:var(--sell);color:var(--sell)}
+button.small{padding:3px 9px;font-size:12px}
+button:disabled{opacity:.5;cursor:default}
+nav{display:flex;gap:4px;padding:10px 20px 0;flex-wrap:wrap}
+nav button{border-radius:8px 8px 0 0;border-bottom:none;background:transparent;color:var(--muted)}
+nav button.active{background:var(--panel);color:var(--text);border-color:var(--line)}
+main{padding:0 20px 40px}
+.tab{display:none;background:var(--panel);border:1px solid var(--line);border-radius:0 10px 10px 10px;padding:18px}
+.tab.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}
+.card{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px}
+.card.sig-buy{border-color:var(--buy);box-shadow:0 0 0 1px var(--buy) inset}
+.card.sig-sell{border-color:var(--sell);box-shadow:0 0 0 1px var(--sell) inset}
+.card h3{margin:0 0 4px;font-size:16px;display:flex;justify-content:space-between}
+.price{font-variant-numeric:tabular-nums;font-size:15px}
+.sub{color:var(--muted);font-size:12px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0}
+.stat{background:var(--panel);border-radius:6px;padding:6px 8px}
+.stat b{display:block;font-size:13px;font-variant-numeric:tabular-nums}
+.stat span{font-size:11px;color:var(--muted)}
+.sides{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.side{background:var(--panel);border-radius:8px;padding:8px}
+.side h4{margin:0 0 6px;font-size:12px;display:flex;justify-content:space-between}
+.side.buy h4{color:var(--buy)} .side.sell h4{color:var(--sell)}
+.bar{height:5px;background:#0b0f14;border-radius:3px;overflow:hidden;margin-bottom:6px}
+.bar i{display:block;height:100%}
+.side.buy .bar i{background:var(--buy)} .side.sell .bar i{background:var(--sell)}
+.cond{font-size:11.5px;display:flex;gap:5px;color:var(--muted)}
+.cond.ok{color:var(--text)} .cond .m{width:12px;flex:none} .cond.ok .m{color:var(--buy)}
+.trade-box{margin-top:10px;padding:8px 10px;border-radius:8px;background:#0b0f14;font-size:12.5px;border:1px dashed var(--warn)}
+.trade-box .row{display:flex;justify-content:space-between;gap:6px;align-items:center}
+.bt-line{margin-top:8px;font-size:12px;color:var(--muted)}
+.grade{display:inline-block;min-width:22px;text-align:center;border-radius:5px;padding:0 6px;font-weight:700;font-size:12px}
+.gA{background:var(--buy);color:#042} .gB{background:#7bd88f;color:#042} .gC{background:var(--warn);color:#331f00} .gD{background:var(--sell);color:#300} .gQ{background:var(--line);color:var(--text)}
+.log{display:flex;flex-direction:column;gap:10px}
+.entry{background:var(--panel2);border-left:4px solid var(--line);border-radius:8px;padding:10px 12px}
+.entry.BUY{border-left-color:var(--buy)} .entry.SELL{border-left-color:var(--sell)} .entry.INFO{border-left-color:var(--accent)} .entry.WARN{border-left-color:var(--warn)}
+.entry .t{color:var(--muted);font-size:12px}
+.entry pre{white-space:pre-wrap;margin:6px 0 0;font:12.5px/1.5 ui-monospace,Consolas,monospace}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+td.l,th.l{text-align:left;white-space:normal}
+th{color:var(--muted);font-weight:500;font-size:11.5px}
+tr.base td{background:rgba(245,185,66,.08)}
+tr.sel td{background:rgba(78,161,255,.12)}
+.pos{color:var(--buy)} .neg{color:var(--sell)}
+.ok-badge{color:var(--buy);font-weight:700}
+input,select{background:#0b0f14;color:var(--text);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit;width:100%}
+input[type=checkbox]{width:auto}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px 16px}
+.form label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+.form label.chk{flex-direction:row;align-items:center;gap:8px;color:var(--text)}
+.section{margin:20px 0 8px;font-size:13px;color:var(--accent);text-transform:uppercase;letter-spacing:.6px}
+.pairtbl input{width:90px} .pairtbl input.ses{width:120px}
+.note{background:#0b0f14;border:1px solid var(--line);border-radius:8px;padding:10px 12px;color:var(--muted);font-size:12.5px;margin:10px 0}
+.note b{color:var(--text)}
+.verdict{border-radius:8px;padding:12px 14px;margin:12px 0;font-size:13.5px}
+.verdict.good{background:rgba(46,204,113,.1);border:1px solid var(--buy)}
+.verdict.bad{background:rgba(255,92,92,.1);border:1px solid var(--sell)}
+.verdict.meh{background:rgba(245,185,66,.1);border:1px solid var(--warn)}
+.flex{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.flex label{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted)}
+.flex label input,.flex label select{width:auto}
+canvas{width:100%;height:170px;background:#0b0f14;border-radius:8px;margin-top:10px}
+.banner{display:none;margin:12px 20px 0;padding:12px 14px;border-radius:10px;font-weight:600;cursor:pointer}
+.banner.BUY{display:block;background:rgba(46,204,113,.15);border:1px solid var(--buy)}
+.banner.SELL{display:block;background:rgba(255,92,92,.15);border:1px solid var(--sell)}
+.progress{height:6px;background:#0b0f14;border-radius:3px;overflow:hidden;margin:10px 0}
+.progress i{display:block;height:100%;background:var(--accent);width:0}
+.stratbox{background:#0b0f14;border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:12.5px;margin:8px 0}
+code{background:#0b0f14;padding:1px 5px;border-radius:4px}
+</style>
+</head>
+<body>
+<header>
+  <h1>PRO4 Reversal <small>live scanner · backtest · strategy lab — signals only</small></h1>
+  <div class="hdr-right">
+    <span class="clock" id="clock">--</span>
+    <span class="pill" id="credits">credits 0/800</span>
+    <span class="pill" id="runPill">stopped</span>
+    <a href="./" style="color:var(--muted);font-size:13px;text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:7px 12px">← Dashboard</a>
+    <button id="scanNowBtn">Scan now</button>
+    <button class="primary" id="startBtn">Start scanner</button>
+  </div>
+</header>
+<div class="banner" id="banner" title="click to dismiss"></div>
+<nav>
+  <button data-tab="live" class="active">Live</button>
+  <button data-tab="journal">Paper journal</button>
+  <button data-tab="signals">Signals log</button>
+  <button data-tab="backtest">Backtest</button>
+  <button data-tab="lab">Strategy Lab</button>
+  <button data-tab="settings">Settings</button>
+  <button data-tab="help">Setup &amp; notes</button>
+</nav>
+<main>
+  <!-- LIVE -->
+  <section class="tab active" id="tab-live">
+    <div class="stratbox" id="liveStrat"></div>
+    <div class="note" id="liveNote"></div>
+    <div class="grid" id="cards"></div>
+  </section>
+
+  <!-- JOURNAL -->
+  <section class="tab" id="tab-journal">
+    <div class="note">Every alert is recorded here as a paper trade, automatically. The scanner follows each one to its exact SL or TP, even after the session ends, and writes the result in. You don't have to do anything while you're at work. If the PC sleeps, it catches up on the next scan from the price history.</div>
+    <div class="flex">
+      <button class="primary" id="jLinkBtn">Link a journal file</button>
+      <button id="jDownloadBtn">Download journal CSV</button>
+      <button id="jClearBtn" class="danger">Clear journal</button>
+      <span class="sub" id="jFileStatus">Not linked. A copy also auto-downloads after 16:10 NY on trading days (see Settings).</span>
+    </div>
+    <div id="jStats" style="margin-top:12px"></div>
+    <div class="tablewrap" id="jTable" style="max-height:560px;overflow:auto;margin-top:10px"></div>
+  </section>
+
+  <!-- SIGNALS -->
+  <section class="tab" id="tab-signals">
+    <div class="flex" style="justify-content:space-between;margin-bottom:10px">
+      <div class="sub">Signals, breakeven alerts and outcomes (kept in this browser).</div>
+      <button id="clearLogBtn" class="danger">Clear log</button>
+    </div>
+    <div class="log" id="log"></div>
+  </section>
+
+  <!-- BACKTEST -->
+  <section class="tab" id="tab-backtest">
+    <div class="section" style="margin-top:0">1 · Historical data (saved in this browser)</div>
+    <div class="flex">
+      <label>History <select id="dlMonths">
+        <option value="3">3 months</option><option value="6">6 months</option><option value="9" selected>9 months</option><option value="12">12 months</option>
+      </select></label>
+      <button class="primary" id="dlBtn">Download history</button>
+      <button id="updBtn">Update to now</button>
+      <button id="dlTestBtn">Download 8 test pairs</button>
+      <button id="exportBtn">Export history (for Claude)</button>
+      <span class="sub" id="dlStatus"></span>
+    </div>
+    <div class="progress"><i id="dlProg"></i></div>
+    <div class="sub" id="cacheInfo"></div>
+
+    <div class="section">2 · Backtest the current strategy</div>
+    <div class="stratbox" id="btStrat"></div>
+    <div class="flex"><button class="primary" id="btRunBtn">Run backtest</button><span class="sub" id="btStatus"></span></div>
+    <div class="tablewrap" id="btResults"></div>
+    <canvas id="btChart" width="1200" height="340"></canvas>
+    <div class="sub" id="btChartLegend"></div>
+
+    <div class="section">3 · Account simulator: what would my account look like?</div>
+    <div class="flex">
+      <label>Starting balance ($) <input id="simStart" type="number" inputmode="decimal" step="1" min="1" autocomplete="off" style="width:110px"></label>
+      <label>Lot size per trade <input id="simLot" type="number" inputmode="decimal" step="0.01" min="0.01" autocomplete="off" style="width:90px"></label>
+      <label>Leverage 1: <input id="simLev" type="number" inputmode="numeric" step="1" min="1" autocomplete="off" style="width:80px"></label>
+      <label><input id="simTest" type="checkbox" autocomplete="off"> Include TEST pairs</label>
+      <button id="simRecalc" class="primary">Recalculate</button>
+      <span class="sub">Changes update instantly. Run the backtest first.</span>
+    </div>
+    <div id="simOut" style="margin-top:10px"></div>
+    <canvas id="simChart" width="1200" height="300"></canvas>
+    <div class="sub" id="simLegend"></div>
+
+    <div class="section">4 · Trade list (check these against your broker's chart)</div>
+    <div class="flex">
+      <label>Pair <select id="tlPair"><option value="">All</option></select></label>
+      <label>Result <select id="tlRes"><option value="">All</option><option>TP</option><option>SL</option><option>BE</option></select></label>
+      <button id="csvBtn">Download CSV</button>
+      <span class="sub" id="tlCount"></span>
+    </div>
+    <div class="tablewrap" id="tradeList" style="max-height:520px;overflow:auto;margin-top:8px"></div>
+  </section>
+
+  <!-- LAB -->
+  <section class="tab" id="tab-lab">
+    <div class="note"><b>Note:</b> the Lab explores the old PRO4 reversal model. The Connors RSI-2 strategy was found and validated separately in a larger offline study, so use the Backtest tab for it.</div>
+    <div class="note">
+      The Lab tests <b>7,776 versions</b> of the strategy on your downloaded history. The variations cover:
+      <b>6 sessions</b> (Asia, London, NY open, NY afternoon, all day, your pair sessions);
+      <b>3 RSI levels</b> (20/80, 25/75, 30/70); <b>3 Bollinger widths</b> (2.0, 2.2, 2.5);
+      <b>3 Stochastic settings</b> (zone 20, zone 30, off);
+      <b>4 regime filters</b> (none, range-only ADX&lt;25 or &lt;20, trade with the EMA200 trend);
+      <b>4 exit styles</b> (your fixed pips, two ATR-based exits, and the classic mean-reversion target of the <b>middle band</b>);
+      and <b>3 breakeven rules</b>.<br><br>
+      To avoid fooling ourselves, each version is ranked only on the <b>older part</b> of the history (in-sample), then shown how it did on the <b>newer part it never saw</b> (out-of-sample).
+      All four pairs share one set of rules, which makes the results much harder to fake than tuning each pair separately.
+      If nothing holds up out-of-sample, the honest answer is that this entry pattern doesn't have an edge here.
+    </div>
+    <div class="flex">
+      <label>In-sample share <select id="labSplit"><option value="0.5">50%</option><option value="0.6" selected>60%</option><option value="0.7">70%</option></select></label>
+      <label>Min in-sample trades <input id="labMinN" type="number" value="30" style="width:70px"></label>
+      <label>Rank by <select id="labSort">
+        <option value="is">In-sample strength (strict)</option>
+        <option value="robust">Weaker of both halves (robust)</option>
+      </select></label>
+      <button class="primary" id="labRunBtn">Run Strategy Lab</button>
+      <span class="sub" id="labStatus"></span>
+    </div>
+    <div class="progress"><i id="labProg"></i></div>
+    <div id="labVerdict"></div>
+    <div class="tablewrap" id="labResults"></div>
+    <div id="labDetail"></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="tab" id="tab-settings">
+    <div class="section" style="margin-top:0">Data &amp; alerts</div>
+    <div class="form">
+      <label>Twelve Data API key <input id="s_apiKey" type="password" placeholder="paste your free key"></label>
+      <label>ntfy topic (phone push) <input id="s_ntfy" placeholder="e.g. pro4-yourname-4821"></label>
+      <label class="chk"><input id="s_sound" type="checkbox"> Sound alert</label>
+      <label class="chk"><input id="s_desktop" type="checkbox"> Desktop notification</label>
+      <label class="chk"><input id="s_scanOutside" type="checkbox"> Also scan outside sessions (watch only, uses more credits)</label>
+      <label class="chk"><input id="s_track" type="checkbox"> Track each signal as a paper trade (needed for the journal)</label>
+      <label class="chk"><input id="s_autoExport" type="checkbox"> Auto-download the journal CSV after 16:10 NY each trading day</label>
+    </div>
+    <div class="section">Strategy model</div>
+    <div class="form">
+      <label>Model <select id="s_mode"><option value="connors">Connors RSI-2 (H1): passed testing</option><option value="pro4">PRO4 reversal (failed testing; Lab only)</option></select></label>
+      <label>Commission per lot, round trip (USD) <input id="s_commission" type="number" step="0.5"></label>
+    </div>
+    <div class="section">Connors RSI-2 settings (tested values: 5 · 25 · 07:00-16:00 · 2.0 · 0.75 · 3)</div>
+    <div class="form">
+      <label>RSI(2) threshold (buy below, sell above 100−x) <input id="cr_rsi" type="number"></label>
+      <label>Min ADX(14) on H1 <input id="cr_adx" type="number"></label>
+      <label>Session (NY time) <input id="cr_ses"></label>
+      <label>Stop = ATR(14,H1) × <input id="cr_stopAtr" type="number" step="0.1"></label>
+      <label>TP = distance to 5-hr average × <input id="cr_tpMult" type="number" step="0.05"></label>
+      <label>Skip if TP under (pips) <input id="cr_minTp" type="number" step="0.5"></label>
+    </div>
+    <div class="flex" style="margin-top:8px"><button id="crResetBtn" class="small">Reset Connors to tested values</button></div>
+    <div class="section">PRO4 reversal settings (the Lab's "Apply" button fills these)</div>
+    <div class="form">
+      <label>Session <select id="v_ses"></select></label>
+      <label>RSI oversold (buy) <input id="v_rsiOS" type="number"></label>
+      <label>RSI overbought (sell) <input id="v_rsiOB" type="number"></label>
+      <label>Bollinger deviation <input id="v_bbD" type="number" step="0.1"></label>
+      <label>Stochastic trigger <select id="v_st"></select></label>
+      <label>Regime filter <select id="v_filter"></select></label>
+      <label>Exit style <select id="v_exit"></select></label>
+      <label>Breakeven <select id="v_be"></select></label>
+    </div>
+    <div class="flex" style="margin-top:8px"><button id="origBtn" class="small">Reset strategy to original PRO4 rules</button></div>
+    <div class="section">Risk (suggested lot size)</div>
+    <div class="form">
+      <label>Account balance (USD) <input id="s_balance" type="number" step="1"></label>
+      <label>Risk % per trade <input id="s_risk" type="number" step="0.1"></label>
+      <label>Max lot cap <input id="s_maxLot" type="number" step="0.01"></label>
+      <label class="chk"><input id="s_useFixed" type="checkbox"> Use fixed lot</label>
+      <label>Fixed lot <input id="s_fixedLot" type="number" step="0.01"></label>
+    </div>
+    <div class="section">Breakeven details</div>
+    <div class="form">
+      <label>Fixed trigger (pips in profit) <input id="s_beTrigger" type="number" step="0.1"></label>
+      <label>Buffer = spread × <input id="s_beMult" type="number" step="0.1"></label>
+      <label>+ extra buffer pips <input id="s_beExtra" type="number" step="0.1"></label>
+    </div>
+    <div class="section">Indicator periods</div>
+    <div class="form">
+      <label>M15 BB period <input id="s_bbP" type="number"></label>
+      <label>M15 RSI period <input id="s_rsiP" type="number"></label>
+      <label>M15 ATR period <input id="s_atrP" type="number"></label>
+      <label>M15 ADX period <input id="s_adxP" type="number"></label>
+      <label>M15 EMA period (trend filter) <input id="s_emaP" type="number"></label>
+      <label>M5 Stoch %K <input id="s_stK" type="number"></label>
+      <label>M5 Stoch %D <input id="s_stD" type="number"></label>
+      <label>M5 Stoch slowing <input id="s_stS" type="number"></label>
+    </div>
+    <div class="section">Pairs (sessions in New York time; used when Session = "Your pair sessions")</div>
+    <div class="tablewrap"><table class="pairtbl" id="pairTbl"></table></div>
+    <div class="form" style="margin-top:12px"><label>Rollover hard block (NY time) <input id="s_rollover"></label></div>
+    <div class="flex" style="margin-top:16px">
+      <button class="primary" id="saveBtn">Save settings</button>
+      <button id="testAlertBtn">Send test alert</button>
+      <button id="resetBtn" class="danger">Reset everything to defaults</button>
+      <span class="sub" id="saveStatus"></span>
+    </div>
+  </section>
+
+  <!-- HELP -->
+  <section class="tab" id="tab-help">
+    <div class="note"><b>Active strategy: Connors RSI-2 on the hourly chart.</b> This is Larry Connors' published pullback system. It buys short, sharp dips in a strong uptrend and sells short spikes in a strong downtrend. A signal needs four things at an hourly close between 07:00 and 16:00 NY: (1) price on the right side of the 200-hour average, (2) RSI(2) below 5 for buys or above 95 for sells, (3) ADX above 25, meaning the trend is strong, and (4) the target being at least 3 pips away. The take-profit is 75% of the way back to the 5-hour average. The stop is 2× the hourly ATR. Set both in MT4 when the alert arrives and leave the trade alone.<br><br>In offline testing on 9 months of data, with spread plus $10/lot commission, it made 67 trades with about 88% winners and +8 pips per trade. It was positive in all 5 time slices and on all 4 pairs. Out of 16 well-known strategies tested, it was the only one that beat random entries. That still isn't a guarantee: it averages about 1.7 trades a week, so paper trade it first.</div>
+    <div class="note"><b>TEST pairs: NZD/USD and EUR/CHF.</b> These two came out of the Nov 26 deep dive. Each passed a check on locked data, but only on 8–9 trades, so they could still be luck. Their alerts say <b>"TEST · paper only"</b>, and every signal is tracked in the journal. Their grade shows <b>T</b> while testing, along with live progress. After <b>15+ live paper trades with 80%+ wins and a profit</b>, it switches to a letter grade (A/B/C), the label changes to <b>PASSED TEST</b>, and you get a phone alert. If one is under 70% wins or losing money after 10+ trades, it shows <b>D · failing</b>, and you should switch it off in Settings. Clearing the journal resets the test.<br>
+    <b>NZD/USD:</b> H1 above the 200-hour average, RSI(2) below 15, Stochastic(14) in the bottom 15%, and a bullish 5-minute candle at the hourly close. TP = $3 net at 0.03 lot, SL = 4× the TP, close by hand after 24h. SELL is the mirror image.<br>
+    <b>EUR/CHF:</b> H1 Stochastic(14,3,3) crosses up below 20 (or down above 80), ADX above 25, and Bollinger width in its top 30%. TP = 0.5× hourly ATR, SL = 2× ATR, close by hand after 72h.</div>
+    <div class="note"><b>Order of operations.</b> (1) Paste your Twelve Data key in Settings. (2) Backtest tab: download 6–12 months of history (about 1 credit per 5,000 bars; the download respects the 8-calls-per-minute limit). (3) Run the Strategy Lab. (4) If a version is marked robust, open Details, then press <b>Apply</b>. (5) Run the Backtest so live signals get a grade. (6) Paper trade it for 3–4 weeks before you put money on it.</div>
+    <div class="note"><b>Phone alerts (Android).</b> Install <b>ntfy</b> from the Play Store and subscribe to a hard-to-guess topic name. Enter the same name in Settings and press "Send test alert".</div>
+    <div class="note"><b>Keep it running.</b> Leave this tab open in Chrome (minimized is fine) and stop the PC from sleeping. The scanner checks 15 seconds after every 5-minute close and only uses credits while a pair's session is open. An "All day" session on 4 pairs needs about 1,050 credits a day, which is more than the free 800, so the Settings page warns you about that.</div>
+    <div class="note"><b>How the backtest fills trades.</b> Entry is at the close of the signal bar, with your spread added on buys. TP and SL are checked against bid for buys and ask for sells, the way MT5 does it. If one bar touches both SL and TP, it counts as a loss. Breakeven moves the stop to entry plus spread once the trade reaches the trigger.</div>
+    <div class="note"><b>Reading the Lab.</b> <b>R</b> means profit or loss in units of the stop distance: +1R means you made what you risked. Avg R is your edge per trade. t-score measures how consistent that edge is; above about 2 means the result is unlikely to be luck. Because the Lab tests thousands of versions, a few will look good in-sample purely by chance. That's why <b>out-of-sample</b> is the column to trust. A version counts as <b>robust</b> only if it has a t-score of 2 or more in <i>both</i> halves, at least 30 out-of-sample trades, and an out-of-sample profit factor above 1.2. I calibrated that bar on purpose: on 8 sets of pure random price data, which has no edge by definition, nothing passed it. On synthetic data that really mean-reverts, most of the top versions passed. "~ lead" means positive on unseen data but not proven yet.</div>
+    <div class="note"><b>Data feed vs. your broker.</b> Twelve Data is a composite feed, so a band touch here can miss at your broker by a fraction of a pip. Use the trade list to spot-check entries against your broker's chart, and set each pair's spread to what your broker actually charges.</div>
+  </section>
+</main>
+
+<script id="core">
+// ===================== PRO4 core engine (pure logic, no DOM) =====================
+const PAIRS = ["EUR/USD","GBP/USD","USD/CHF","USD/JPY","AUD/USD","NZD/USD","USD/CAD","EUR/JPY","GBP/JPY","EUR/GBP","AUD/JPY","EUR/CHF"];
+const TEST_PAIRS = PAIRS.slice(4);
+
+const SESSIONS = {
+  rules:   {label:"Your pair sessions", w:null},
+  asia:    {label:"Asia 19:00–02:00",    w:"19:00-02:00"},
+  london:  {label:"London 02:00–07:00",  w:"02:00-07:00"},
+  overlap: {label:"NY open 07:00–11:00", w:"07:00-11:00"},
+  pm:      {label:"NY pm 11:00–16:00",   w:"11:00-16:00"},
+  all:     {label:"All day",             w:"18:00-16:00"}
+};
+const EXITS = {
+  fixed: "Fixed pips (per pair)",
+  atrA:  "SL 1.5×ATR / TP 1.0×ATR",
+  atrB:  "SL 1.0×ATR / TP 1.5×ATR",
+  mid:   "TP mid-band / SL 1.5×ATR"
+};
+const BES = { fixed:"Fixed trigger", off:"No breakeven", "60":"At 60% of TP" };
+const FILTERS = { none:"No regime filter", adx25:"Range only (ADX<25)", adx20:"Tight range (ADX<20)", trend:"With trend (EMA200)" };
+const STOCHS = { "30":"Stoch cross, zone 30/70", "20":"Stoch cross, zone 20/80", off:"No stoch trigger" };
+
+const ORIGINAL_V = {ses:"rules", rsiOS:25, rsiOB:75, bbD:2.2, st:"30", filter:"none", exit:"fixed", be:"fixed"};
+
+const DEFAULTS = {
+  apiKey:"", ntfy:"", sound:true, desktop:true, scanOutside:false, track:true, autoExport:true,
+  balance:1000, risk:4.5, maxLot:10, useFixed:false, fixedLot:0.10,
+  beTrigger:5.5, beMult:1.0, beExtra:0, commission:10,
+  bbP:20, rsiP:8, atrP:14, stK:8, stD:3, stS:3, adxP:14, emaP:200,
+  rollover:"16:00-18:00",
+  V: {...ORIGINAL_V},
+  mode: "connors",
+  cr: {rsi:5, adx:25, ses:"07:00-16:00", stopAtr:2.0, tpMult:0.75, minTp:3},
+  pairs:{
+    "EUR/USD":{on:true, tp:10.0, sl:9.0,  atr:14, ses:"07:00-11:00", spread:1.0},
+    "GBP/USD":{on:true, tp:12.5, sl:11.0, atr:14, ses:"07:00-11:00", spread:1.4},
+    "USD/CHF":{on:true, tp:8.5,  sl:8.0,  atr:14, ses:"07:00-08:00", spread:1.6},
+    "USD/JPY":{on:true, tp:6.5,  sl:7.0,  atr:14, ses:"21:00-00:00", spread:1.3},
+    // extra pairs: tested 2026-11-26 — only EUR/JPY passed (Connors). The rest stay off: no strategy beat random entries on them.
+    "AUD/USD":{on:false, tp:10, sl:9, atr:14, ses:"07:00-11:00", spread:1.2},
+    "NZD/USD":{on:true,  tp:10, sl:9, atr:14, ses:"07:00-11:00", spread:1.6, strat:"alt", test:true},   // TEST strategy (paper only)
+    "USD/CAD":{on:false, tp:10, sl:9, atr:14, ses:"07:00-11:00", spread:1.6},
+    "EUR/JPY":{on:true,  tp:10, sl:9, atr:14, ses:"07:00-11:00", spread:1.6},   // passed Connors testing 2026-11-26
+    "GBP/JPY":{on:false, tp:10, sl:9, atr:14, ses:"07:00-11:00", spread:2.5},
+    "EUR/GBP":{on:false, tp:10, sl:9, atr:14, ses:"07:00-11:00", spread:1.4},
+    "AUD/JPY":{on:false, tp:10, sl:9, atr:14, ses:"07:00-11:00", spread:1.8},
+    "EUR/CHF":{on:true,  tp:10, sl:9, atr:14, ses:"07:00-11:00", spread:1.8, strat:"alt", test:true}    // TEST strategy (paper only)
+  }
+};
+
+const pipOf = pair => pair.includes("JPY") ? 0.01 : 0.0001;
+const digitsOf = pair => pair.includes("JPY") ? 3 : 5;
+const vKey = V => [V.ses,V.rsiOS,V.rsiOB,V.bbD,V.st,V.filter,V.exit,V.be].join("|");
+function vLabel(V){
+  return `${SESSIONS[V.ses].label} · BB ${V.bbD} · RSI ${V.rsiOS}/${V.rsiOB} · ${STOCHS[V.st]} · ${FILTERS[V.filter]} · ${EXITS[V.exit]} · BE ${BES[V.be]}`;
+}
+
+// ---------------- time (naive New York minutes since epoch) ----------------
+function parseDT(s){
+  const [d,t="00:00:00"] = s.split(" ");
+  const [Y,M,D] = d.split("-").map(Number);
+  const [h,m,sec=0] = t.split(":").map(Number);
+  return Date.UTC(Y,M-1,D,h,m,sec)/60000;
+}
+function fmtDT(min){
+  const d = new Date(min*60000), p = n => String(n).padStart(2,"0");
+  return `${d.getUTCFullYear()}-${p(d.getUTCMonth()+1)}-${p(d.getUTCDate())} ${p(d.getUTCHours())}:${p(d.getUTCMinutes())}:00`;
+}
+function nowNY(){
+  const p = {};
+  new Intl.DateTimeFormat("en-US",{timeZone:"America/New_York",hourCycle:"h23",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit"})
+    .formatToParts(new Date()).forEach(x => p[x.type] = x.value);
+  return Date.UTC(+p.year, +p.month-1, +p.day, (+p.hour)%24, +p.minute, +p.second)/60000;
+}
+const minOfDay = min => ((Math.floor(min) % 1440) + 1440) % 1440;
+const dow = min => new Date(min*60000).getUTCDay();
+function marketOpen(min){
+  const d = dow(min), m = minOfDay(min);
+  if(d === 6) return false;
+  if(d === 0 && m < 17*60) return false;
+  if(d === 5 && m >= 17*60) return false;
+  return true;
+}
+function parseWindow(s){
+  if(!s) return null;
+  const parts = String(s).replace(/\s/g,"").split("-");
+  if(parts.length !== 2) return null;
+  const f = x => { const [h,m="0"] = x.split(":"); const v = (+h)*60 + (+m); return (isNaN(v)||v<0||v>1440) ? null : v; };
+  const a = f(parts[0]), b = f(parts[1]);
+  return (a===null||b===null) ? null : [a,b];
+}
+function inWindow(m, w){
+  if(!w) return false;
+  const s = w[0], e = w[1];
+  if(s === e) return false;
+  return s < e ? (m >= s && m < e) : (m >= s || m < e);
+}
+function windowMinutes(w){ if(!w) return 0; return w[0] < w[1] ? w[1]-w[0] : 1440-w[0]+w[1]; }
+
+// ---------------- bars ----------------
+function toBars(values){
+  return values.map(v => ({t:parseDT(v.datetime), o:+v.open, h:+v.high, l:+v.low, c:+v.close}))
+               .filter(b => isFinite(b.o)&&isFinite(b.h)&&isFinite(b.l)&&isFinite(b.c) && marketOpen(b.t))   // drop weekend quotes
+               .sort((a,b) => a.t - b.t);
+}
+function dedupe(bars){
+  const out = []; let last = -1;
+  for(const b of bars){ if(b.t !== last){ out.push(b); last = b.t; } }
+  return out;
+}
+function aggregateM15(m5){
+  const out = [];
+  for(const b of m5){
+    const k = Math.floor(b.t/15)*15;
+    const cur = out[out.length-1];
+    if(cur && cur.t === k){ if(b.h>cur.h) cur.h=b.h; if(b.l<cur.l) cur.l=b.l; cur.c = b.c; }
+    else out.push({t:k, o:b.o, h:b.h, l:b.l, c:b.c});
+  }
+  return out;
+}
+
+// ---------------- indicators (MT5 formulas) ----------------
+function bbands(c, p, dev){
+  const n=c.length, up=new Float64Array(n).fill(NaN), lo=new Float64Array(n).fill(NaN), mid=new Float64Array(n).fill(NaN);
+  for(let i=p-1;i<n;i++){
+    let s=0; for(let j=i-p+1;j<=i;j++) s+=c[j];
+    const m=s/p; let v=0; for(let j=i-p+1;j<=i;j++) v+=(c[j]-m)*(c[j]-m);
+    const sd=Math.sqrt(v/p);
+    mid[i]=m; up[i]=m+dev*sd; lo[i]=m-dev*sd;
+  }
+  return {up,lo,mid};
+}
+function rsiW(c, p){
+  const n=c.length, r=new Float64Array(n).fill(NaN);
+  if(n<=p) return r;
+  let g=0,l=0;
+  for(let i=1;i<=p;i++){ const d=c[i]-c[i-1]; if(d>0) g+=d; else l-=d; }
+  g/=p; l/=p;
+  r[p] = l===0 ? 100 : 100-100/(1+g/l);
+  for(let i=p+1;i<n;i++){
+    const d=c[i]-c[i-1];
+    g=(g*(p-1)+(d>0?d:0))/p; l=(l*(p-1)+(d<0?-d:0))/p;
+    r[i] = l===0 ? 100 : 100-100/(1+g/l);
+  }
+  return r;
+}
+function trueRange(b){
+  const n=b.length, tr=new Float64Array(n);
+  for(let i=0;i<n;i++) tr[i] = i===0 ? b[i].h-b[i].l : Math.max(b[i].h-b[i].l, Math.abs(b[i].h-b[i-1].c), Math.abs(b[i].l-b[i-1].c));
+  return tr;
+}
+function atrSMA(b, p){
+  const n=b.length, tr=trueRange(b), a=new Float64Array(n).fill(NaN);
+  let s=0;
+  for(let i=0;i<n;i++){ s+=tr[i]; if(i>=p) s-=tr[i-p]; if(i>=p) a[i]=s/p; }
+  return a;
+}
+function adxW(b, p){
+  const n=b.length, out=new Float64Array(n).fill(NaN);
+  if(n < 2*p+2) return out;
+  const tr=trueRange(b);
+  let sTR=0,sP=0,sM=0, adx=NaN, dxSum=0, dxCount=0;
+  for(let i=1;i<n;i++){
+    const up=b[i].h-b[i-1].h, dn=b[i-1].l-b[i].l;
+    const pdm = (up>dn && up>0) ? up : 0, mdm = (dn>up && dn>0) ? dn : 0;
+    if(i<=p){ sTR+=tr[i]; sP+=pdm; sM+=mdm; if(i<p) continue; }
+    else { sTR = sTR - sTR/p + tr[i]; sP = sP - sP/p + pdm; sM = sM - sM/p + mdm; }
+    const pdi = sTR ? 100*sP/sTR : 0, mdi = sTR ? 100*sM/sTR : 0;
+    const dx = (pdi+mdi) ? 100*Math.abs(pdi-mdi)/(pdi+mdi) : 0;
+    if(dxCount < p){ dxSum+=dx; dxCount++; if(dxCount===p){ adx=dxSum/p; out[i]=adx; } }
+    else { adx = (adx*(p-1)+dx)/p; out[i]=adx; }
+  }
+  return out;
+}
+function emaArr(c, p){
+  const n=c.length, e=new Float64Array(n).fill(NaN);
+  if(n<p) return e;
+  let s=0; for(let i=0;i<p;i++) s+=c[i];
+  let v=s/p; e[p-1]=v; const k=2/(p+1);
+  for(let i=p;i<n;i++){ v = c[i]*k + v*(1-k); e[i]=v; }
+  return e;
+}
+function stochMT5(b, kP, dP, slow){
+  const n=b.length, num=new Float64Array(n).fill(NaN), den=new Float64Array(n).fill(NaN), K=new Float64Array(n).fill(NaN), D=new Float64Array(n).fill(NaN);
+  for(let i=kP-1;i<n;i++){
+    let ll=Infinity, hh=-Infinity;
+    for(let j=i-kP+1;j<=i;j++){ if(b[j].l<ll) ll=b[j].l; if(b[j].h>hh) hh=b[j].h; }
+    num[i]=b[i].c-ll; den[i]=hh-ll;
+  }
+  for(let i=kP-1+slow-1;i<n;i++){
+    let sn=0, sd=0; for(let j=i-slow+1;j<=i;j++){ sn+=num[j]; sd+=den[j]; }
+    K[i] = sd===0 ? 100 : sn/sd*100;
+  }
+  for(let i=kP-1+slow-1+dP-1;i<n;i++){
+    let s=0; for(let j=i-dP+1;j<=i;j++) s+=K[j]; D[i]=s/dP;
+  }
+  return {K,D};
+}
+
+// ---------------- features ----------------
+function buildFeatures(m5, pair, S, devs){
+  const m15 = aggregateM15(m5);
+  const c15 = m15.map(b=>b.c);
+  const bbs = {};
+  (devs || [S.V.bbD]).forEach(d => bbs[+d] = bbands(c15, S.bbP, +d));
+  const st = stochMT5(m5, S.stK, S.stD, S.stS);
+  const n = m5.length, J = new Int32Array(n), mod = new Int16Array(n);
+  let j = -1;
+  for(let i=0;i<n;i++){
+    const T = m5[i].t + 5;
+    while(j+1 < m15.length && m15[j+1].t + 15 <= T) j++;
+    J[i] = j; mod[i] = minOfDay(T);
+  }
+  return { pair, pip:pipOf(pair), m5, m15, bbs, rsi:rsiW(c15,S.rsiP), atr:atrSMA(m15,S.atrP), adx:adxW(m15,S.adxP), ema:emaArr(c15,S.emaP), K:st.K, D:st.D, J, mod };
+}
+
+function compileV(V, pair, S){
+  const P = S.pairs[pair];
+  return {
+    sesWin: V.ses==="rules" ? parseWindow(P.ses) : V.ses==="*" ? null : parseWindow(SESSIONS[V.ses].w),
+    anySession: V.ses==="*",
+    rollWin: parseWindow(S.rollover), atrCap: P.atr,
+    rsiOS: +V.rsiOS, rsiOB: +V.rsiOB, bbD: +V.bbD,
+    stZone: V.st==="off" ? 0 : +V.st, filter: V.filter
+  };
+}
+
+// returns 1 (buy), -1 (sell), 0 — or a detail object when detail=true
+function evalBar(F, i, X, detail){
+  const j = F.J[i];
+  if(i < 2 || j < 2) return detail ? null : 0;
+  const bb = F.bbs[X.bbD], b = F.m15[j];
+  const up1 = bb.up[j], lo1 = bb.lo[j];
+  const bandB = b.l <= lo1 && b.c > lo1, bandS = b.h >= up1 && b.c < up1;
+  if(!detail && !bandB && !bandS) return 0;
+  const r1=F.rsi[j], r2=F.rsi[j-1], a1=F.atr[j], k1=F.K[i], k2=F.K[i-1], d1=F.D[i], d2=F.D[i-1];
+  if(!(up1===up1 && r1===r1 && r2===r2 && a1===a1 && k1===k1 && k2===k2 && d1===d1 && d2===d2)) return detail ? null : 0;
+  const m = F.mod[i];
+  const roll = inWindow(m, X.rollWin);
+  const ses = X.anySession ? true : inWindow(m, X.sesWin);
+  const sesOK = ses && !roll;
+  const atrPips = a1 / F.pip;
+  const atrOK = atrPips < X.atrCap;
+  let regB = true, regS = true;
+  const adx = F.adx[j], ema = F.ema[j];
+  if(X.filter==="adx25"){ regB = regS = adx < 25; }
+  else if(X.filter==="adx20"){ regB = regS = adx < 20; }
+  else if(X.filter==="trend"){ regB = b.c > ema; regS = b.c < ema; }
+  const rsiB = r1 <= X.rsiOS || r2 <= X.rsiOS, rsiS = r1 >= X.rsiOB || r2 >= X.rsiOB;
+  let crossB=true, crossS=true, zoneB=true, zoneS=true;
+  if(X.stZone){ crossB = k2<=d2 && k1>d1; crossS = k2>=d2 && k1<d1; zoneB = k1 < X.stZone; zoneS = k1 > 100-X.stZone; }
+  const okB = sesOK && atrOK && regB && bandB && rsiB && crossB && zoneB;
+  const okS = sesOK && atrOK && regS && bandS && rsiS && crossS && zoneS;
+  if(!detail) return okB ? 1 : okS ? -1 : 0;
+  const buy  = [sesOK, atrOK && regB, bandB, rsiB, crossB, zoneB];
+  const sell = [sesOK, atrOK && regS, bandS, rsiS, crossS, zoneS];
+  return {
+    T: F.m5[i].t + 5, session:ses, rollover:roll, atrPips, adx, ema, r1, r2, k1, d1, up1, lo1, mid1: bb.mid[j], m15:b,
+    close: F.m5[i].c, buy, sell, buyAll: okB, sellAll: okS,
+    buyPct: Math.round(buy.filter(Boolean).length/6*100), sellPct: Math.round(sell.filter(Boolean).length/6*100),
+    depthB: (lo1-b.l)/F.pip, depthS: (b.h-up1)/F.pip
+  };
+}
+
+// ---------------- trades (feed prices = bid) ----------------
+function makeTrade(F, i, side, V, S){
+  const pair = F.pair, P = S.pairs[pair], pip = F.pip, spr = P.spread*pip, j = F.J[i];
+  const atrP = F.atr[j]/pip, bid = F.m5[i].c;
+  const entry = side==="BUY" ? bid + spr : bid;
+  let slP, tpP;
+  if(V.exit==="fixed"){ slP=P.sl; tpP=P.tp; }
+  else if(V.exit==="atrA"){ slP=1.5*atrP; tpP=1.0*atrP; }
+  else if(V.exit==="atrB"){ slP=1.0*atrP; tpP=1.5*atrP; }
+  else { // mid band
+    slP = 1.5*atrP;
+    const mid = F.bbs[+V.bbD].mid[j];
+    tpP = side==="BUY" ? (mid-entry)/pip : (entry-mid)/pip;
+  }
+  if(V.exit!=="fixed"){ slP = Math.max(4, Math.round(slP*10)/10); tpP = Math.round(tpP*10)/10; }
+  if(!(tpP >= 3) || !(slP > 0)) return null;
+  const beTrig = V.be==="off" ? Infinity : V.be==="60" ? 0.6*tpP : S.beTrigger;
+  return {
+    side, pair, t: F.m5[i].t + 5, entry, spr, slP, tpP, beTrig, beDone:false, commP: (S.commission || 0) / pipValueUSD(pair, bid),
+    sl: side==="BUY" ? entry - slP*pip : entry + slP*pip,
+    tp: side==="BUY" ? entry + tpP*pip : entry - tpP*pip
+  };
+}
+function closeTrade(tr, px, reason, t){
+  const pip = pipOf(tr.pair);
+  const pips = (tr.side==="BUY" ? px-tr.entry : tr.entry-px)/pip - (tr.commP || 0);
+  return {type:"CLOSE", reason, exit:px, pips, R: pips/tr.slP, t};
+}
+function stepTrade(tr, bar, S){
+  const pip = pipOf(tr.pair), trig = tr.beTrig*pip, buf = tr.spr*S.beMult + S.beExtra*pip;
+  if(tr.holdBars){
+    tr.stepped = (tr.stepped || 0) + 1;
+    if(tr.stepped >= tr.holdBars) return closeTrade(tr, tr.side==="BUY" ? bar.c : bar.c + tr.spr, "TIME", bar.t);
+  }
+  if(tr.side==="BUY"){
+    if(bar.l <= tr.sl) return closeTrade(tr, tr.sl, tr.beDone?"BE":"SL", bar.t);
+    if(bar.h >= tr.tp) return closeTrade(tr, tr.tp, "TP", bar.t);
+    if(!tr.beDone && bar.h - tr.entry >= trig){ tr.sl = tr.entry + buf; tr.beDone = true; return {type:"BE_MOVE", sl:tr.sl, t:bar.t}; }
+  } else {
+    const ah = bar.h + tr.spr, al = bar.l + tr.spr;
+    if(ah >= tr.sl) return closeTrade(tr, tr.sl, tr.beDone?"BE":"SL", bar.t);
+    if(al <= tr.tp) return closeTrade(tr, tr.tp, "TP", bar.t);
+    if(!tr.beDone && tr.entry - al >= trig){ tr.sl = tr.entry - buf; tr.beDone = true; return {type:"BE_MOVE", sl:tr.sl, t:bar.t}; }
+  }
+  return null;
+}
+
+// scan all bars for raw signals (session handled by X)
+function scanSignals(F, X){
+  const out = [];
+  for(let i=2;i<F.m5.length-1;i++){
+    const s = evalBar(F, i, X, false);
+    if(s) out.push(i * (s>0 ? 1 : -1));   // signed index
+  }
+  return out;
+}
+// simulate with "max 1 trade at a time"
+function simulate(F, sigs, V, S, onTrade){
+  let free = 0;
+  const n = F.m5.length;
+  for(let q=0;q<sigs.length;q++){
+    const si = sigs[q], i = Math.abs(si);
+    if(i < free) continue;
+    const tr = makeTrade(F, i, si>0 ? "BUY" : "SELL", V, S);
+    if(!tr) continue;
+    let ev = null, k = i+1;
+    const end = Math.min(n, i+1+4000);
+    for(; k<end; k++){ ev = stepTrade(tr, F.m5[k], S); if(ev && ev.type==="CLOSE") break; }
+    if(!ev || ev.type!=="CLOSE") break;           // still open at end of data
+    onTrade(tr, ev, i, k);
+    free = k;
+  }
+}
+function runStrategy(F, V, S){
+  const X = compileV(V, F.pair, S);
+  const trades = [];
+  simulate(F, scanSignals(F, X), V, S, (tr, ev) => trades.push({
+    pair:F.pair, side:tr.side, t:tr.t, entry:tr.entry, exit:ev.exit, exitT:ev.t+5, reason:ev.reason,
+    pips:ev.pips, R:ev.R, slP:tr.slP, tpP:tr.tpP
+  }));
+  return trades;
+}
+
+// ---------------- stats ----------------
+function summarize(trades, S, spanMin){
+  const n = trades.length;
+  let tp=0, sl=0, be=0, net=0, sR=0, gw=0, gl=0, needSum=0;
+  let streak=0, maxStreak=0, eq=1, peak=1, maxDD=0;
+  const curve=[1];
+  for(const t of trades){
+    if(t.reason==="TP") tp++; else if(t.reason==="SL") sl++; else be++;
+    net += t.pips; sR += t.R; if(t.R>0) gw+=t.R; else gl-=t.R;
+    needSum += t.slP/(t.slP+t.tpP);
+    if(t.reason==="SL"){ streak++; if(streak>maxStreak) maxStreak=streak; } else if(t.reason==="TP") streak=0;
+    eq *= 1 + (S.risk/100)*t.R; if(eq>peak) peak=eq; if(1-eq/peak>maxDD) maxDD=1-eq/peak;
+    curve.push(eq);
+  }
+  const weeks = Math.max(1, (spanMin||0)/(60*24*7));
+  return { trades:n, tp, sl, be, net, avg:n?net/n:0, avgR:n?sR/n:0, sumR:sR,
+    pf: gl>0 ? gw/gl : (gw>0?Infinity:0), winRate:n?tp/n:0, need:n?needSum/n:0,
+    maxStreak, maxDD, ret:eq-1, perWeek:n/weeks, curve };
+}
+function wilson(k, n, z=1.96){
+  if(!n) return [0,0];
+  const p=k/n, d=1+z*z/n, c=p+z*z/(2*n), m=z*Math.sqrt(p*(1-p)/n+z*z/(4*n*n));
+  return [(c-m)/d, (c+m)/d];
+}
+function gradeOf(bt){
+  if(!bt || bt.trades < 10) return {g:"?", cls:"gQ", text: bt ? `only ${bt.trades} backtest trades, too few to grade` : "not backtested yet"};
+  const r = bt.avgR;
+  const g = r >= 0.15 && bt.trades >= 30 ? "A" : r >= 0.05 ? "B" : r > 0 ? "C" : "D";
+  const [lo,hi] = wilson(bt.tp, bt.trades);
+  return {g, cls:"g"+g, text:`${(bt.winRate*100).toFixed(0)}% TP rate (95% range ${(lo*100).toFixed(0)}–${(hi*100).toFixed(0)}%) over ${bt.trades} trades · needs ~${(bt.need*100).toFixed(0)}% · ${bt.avgR>=0?"+":""}${bt.avgR.toFixed(2)}R/trade`};
+}
+// USD value of one unit of each quote currency (fallbacks; the scanner swaps in live prices when it has them)
+const FX_REF = {USD:1, JPY:1/155, GBP:1.27, CHF:1/0.88, CAD:1/1.38, EUR:1.08, AUD:0.65, NZD:0.59};
+function usdPer(ccy){
+  const live = (typeof liveUsdPer === "function") ? liveUsdPer(ccy) : null;
+  return live || FX_REF[ccy] || 1;
+}
+function pipValueUSD(pair, price){
+  const [base, quote] = pair.split("/"), units = pipOf(pair) * 100000;
+  if(quote === "USD") return 10;
+  if(base === "USD") return units / price;        // USD/JPY, USD/CHF, USD/CAD
+  return units * usdPer(quote);                    // crosses: EUR/JPY, EUR/GBP, ...
+}
+function lotSize(pair, price, slP, tpP, S){
+  const pv = pipValueUSD(pair, price);
+  let lots = S.useFixed ? S.fixedLot : (S.balance*S.risk/100)/(slP*pv);
+  lots = Math.min(lots, S.maxLot);
+  lots = Math.floor(lots*100 + 1e-9)/100;
+  const minLot = lots < 0.01;
+  if(minLot) lots = 0.01;                       // broker minimum
+  const risk = lots*slP*pv;
+  return {lots, risk, reward: lots*tpP*pv, minLot, riskPct: S.balance > 0 ? risk/S.balance*100 : 0};
+}
+
+// ---------------- Strategy Lab ----------------
+function labGrid(){
+  const g = [];
+  for(const rs of [[25,75],[30,70],[20,80]])
+  for(const bbD of [2.0,2.2,2.5])
+  for(const st of ["30","20","off"])
+  for(const filter of ["none","adx25","adx20","trend"])
+    g.push({rsiOS:rs[0], rsiOB:rs[1], bbD, st, filter});
+  return g;
+}
+const LAB_SESSIONS = ["rules","asia","london","overlap","pm","all"];
+const LAB_EXITS = ["fixed","atrA","atrB","mid"];
+const LAB_BES = ["fixed","off","60"];
+
+function newBucket(){ return {n:0,sR:0,sR2:0,tp:0,sl:0,be:0,gw:0,gl:0}; }
+function addBucket(b, R, reason){
+  b.n++; b.sR+=R; b.sR2+=R*R; if(R>0) b.gw+=R; else b.gl-=R;
+  if(reason==="TP") b.tp++; else if(reason==="SL") b.sl++; else b.be++;
+}
+function bucketStats(b){
+  const mean = b.n ? b.sR/b.n : 0;
+  const v = b.n>1 ? (b.sR2 - b.n*mean*mean)/(b.n-1) : 0;
+  const sd = Math.sqrt(Math.max(v,1e-12));
+  return { n:b.n, avgR:mean, sumR:b.sR, win:b.n?b.tp/b.n:0, pf:b.gl>0?b.gw/b.gl:(b.gw>0?Infinity:0), t: b.n>1 ? mean/(sd/Math.sqrt(b.n)) : 0 };
+}
+
+// featsByPair: {pair: F (built with devs [2,2.2,2.5])}; returns array of results
+async function runLab(featsByPair, S, splitFrac, onProgress){
+  const grid = labGrid(), pairs = Object.keys(featsByPair);
+  const split = {};
+  pairs.forEach(p => { const m=featsByPair[p].m5; split[p] = m[0].t + (m[m.length-1].t - m[0].t)*splitFrac; });
+  const results = [];
+  let done = 0;
+  for(const E of grid){
+    // raw signals for any session, per pair
+    const raw = {};
+    for(const p of pairs){
+      const X = compileV({...E, ses:"*", exit:"fixed", be:"fixed"}, p, S);
+      raw[p] = scanSignals(featsByPair[p], X);
+    }
+    for(const ses of LAB_SESSIONS){
+      const sigs = {};
+      for(const p of pairs){
+        const F = featsByPair[p];
+        const w = ses==="rules" ? parseWindow(S.pairs[p].ses) : parseWindow(SESSIONS[ses].w);
+        sigs[p] = raw[p].filter(si => inWindow(F.mod[Math.abs(si)], w));
+      }
+      for(const exit of LAB_EXITS) for(const be of LAB_BES){
+        const V = {...E, ses, exit, be};
+        const IS = newBucket(), OOS = newBucket(), per = {};
+        for(const p of pairs){
+          const F = featsByPair[p], bIS = newBucket(), bOOS = newBucket();
+          simulate(F, sigs[p], V, S, (tr, ev) => {
+            const target = tr.t < split[p] ? [IS,bIS] : [OOS,bOOS];
+            target.forEach(b => addBucket(b, ev.R, ev.reason));
+          });
+          per[p] = {is:bucketStats(bIS), oos:bucketStats(bOOS)};
+        }
+        results.push({V, key:vKey(V), is:bucketStats(IS), oos:bucketStats(OOS), per});
+      }
+    }
+    done++;
+    if(onProgress) await onProgress(done/grid.length);
+  }
+  return results;
+}
+
+if(typeof module !== "undefined") module.exports = {TEST_PAIRS,pipValueUSD,PAIRS,SESSIONS,EXITS,BES,FILTERS,STOCHS,ORIGINAL_V,DEFAULTS,pipOf,digitsOf,vKey,vLabel,parseDT,fmtDT,nowNY,minOfDay,marketOpen,parseWindow,inWindow,windowMinutes,toBars,dedupe,aggregateM15,bbands,rsiW,atrSMA,adxW,emaArr,stochMT5,buildFeatures,compileV,evalBar,makeTrade,stepTrade,scanSignals,simulate,runStrategy,summarize,wilson,gradeOf,lotSize,labGrid,runLab,bucketStats};
+
+
+// ===================== Connors RSI-2 (H1) — the strategy that passed testing =====================
+// Rules: at each H1 close inside the session: BUY if H1 close > SMA200(H1), RSI(2,H1) < rsi, ADX(14,H1) > adx.
+// SELL mirrored. Stop = stopAtr x ATR(14,H1). Fixed TP = tpMult x distance from entry to SMA5(H1). Skip if TP < minTp pips.
+function aggregate(m5, mins){
+  const out = [];
+  for(const b of m5){
+    const k = Math.floor(b.t/mins)*mins, cur = out[out.length-1];
+    if(cur && cur.t === k){ if(b.h>cur.h) cur.h=b.h; if(b.l<cur.l) cur.l=b.l; cur.c=b.c; }
+    else out.push({t:k, o:b.o, h:b.h, l:b.l, c:b.c});
+  }
+  return out;
+}
+function smaArr(x, p){
+  const n=x.length, o=new Float64Array(n).fill(NaN); let s=0;
+  for(let i=0;i<n;i++){ s+=x[i]; if(i>=p) s-=x[i-p]; if(i>=p-1) o[i]=s/p; }
+  return o;
+}
+function buildConnors(m5, pair, S){
+  const h1 = aggregate(m5, 60), c1 = h1.map(b=>b.c);
+  const tr = trueRange(h1);
+  const n = m5.length, J = new Int32Array(n), nb = new Uint8Array(n), mod = new Int16Array(n);
+  let j = -1;
+  for(let i=0;i<n;i++){
+    const T = m5[i].t + 5;
+    while(j+1 < h1.length && h1[j+1].t + 60 <= T) j++;
+    J[i] = j; nb[i] = (i===0 || J[i] !== J[i-1]) ? 1 : 0; mod[i] = minOfDay(T);
+  }
+  return { pair, pip:pipOf(pair), m5, h1, J, nb, mod,
+    sma200: smaArr(c1,200), sma5: smaArr(c1,5), rsi2: rsiW(c1,2), adx: adxW(h1,14), atr: smaArr(Array.from(tr),14) };
+}
+function evalConnors(C, i, S, detail){
+  const j = C.J[i]; if(j < 1) return detail ? null : 0;
+  const cr = S.cr, b = C.h1[j];
+  const s200=C.sma200[j], r=C.rsi2[j], a=C.adx[j], at=C.atr[j];
+  if(!(s200===s200 && r===r && a===a && at===at)) return detail ? null : 0;
+  const m = C.mod[i];
+  const sesOK = inWindow(m, parseWindow(cr.ses)) && !inWindow(m, parseWindow(S.rollover));
+  const fresh = !!C.nb[i];
+  const buy  = [sesOK && fresh, b.c > s200, r < cr.rsi, a > cr.adx];
+  const sell = [sesOK && fresh, b.c < s200, r > 100-cr.rsi, a > cr.adx];
+  const okB = buy.every(Boolean), okS = sell.every(Boolean);
+  if(!detail) return okB ? 1 : okS ? -1 : 0;
+  return { T:C.m5[i].t+5, h1t:b.t, close:C.m5[i].c, sma200:s200, sma5:C.sma5[j], rsi2:r, adx:a, atrPips:at/C.pip, sesOK, fresh,
+    buy, sell, buyAll:okB, sellAll:okS,
+    buyPct:Math.round(buy.filter(Boolean).length/4*100), sellPct:Math.round(sell.filter(Boolean).length/4*100) };
+}
+function makeConnorsTrade(C, i, side, S){
+  const pair = C.pair, P = S.pairs[pair], pip = C.pip, spr = P.spread*pip, j = C.J[i], cr = S.cr;
+  const bid = C.m5[i].c, entry = side==="BUY" ? bid + spr : bid;
+  const slP = Math.round(Math.max(cr.stopAtr * C.atr[j]/pip, 4)*10)/10;
+  const dist = side==="BUY" ? (C.sma5[j] - entry)/pip : (entry - C.sma5[j])/pip;
+  const tpP = Math.round(cr.tpMult * dist * 10)/10;
+  if(!(tpP >= cr.minTp) || !(slP > 0)) return null;
+  const commP = (S.commission || 0) / pipValueUSD(pair, bid);
+  return { side, pair, t:C.m5[i].t+5, entry, spr, slP, tpP, beTrig:Infinity, beDone:false, model:"connors", commP,
+    sl: side==="BUY" ? entry - slP*pip : entry + slP*pip, tp: side==="BUY" ? entry + tpP*pip : entry - tpP*pip };
+}
+function runConnors(C, S){
+  const trades = []; const n = C.m5.length; let free = 0;
+  for(let i=1;i<n-1;i++){
+    if(i < free || !C.nb[i]) continue;
+    const s = evalConnors(C, i, S, false); if(!s) continue;
+    const tr = makeConnorsTrade(C, i, s>0 ? "BUY" : "SELL", S); if(!tr) continue;
+    let ev = null, k = i+1;
+    for(; k<n; k++){ ev = stepTrade(tr, C.m5[k], S); if(ev && ev.type==="CLOSE") break; }
+    if(!ev || ev.type!=="CLOSE") break;
+    trades.push({pair:C.pair, side:tr.side, t:tr.t, entry:tr.entry, exit:ev.exit, exitT:ev.t+5, reason:ev.reason, pips:ev.pips, R:ev.R, slP:tr.slP, tpP:tr.tpP});
+    free = k;
+  }
+  return trades;
+}
+const crKey = S => "connors|" + [S.cr.rsi,S.cr.adx,S.cr.ses,S.cr.stopAtr,S.cr.tpMult,S.cr.minTp].join("|");
+const crLabel = S => `Connors RSI-2 (H1) · NY ${S.cr.ses} · RSI2 < ${S.cr.rsi} / > ${100-S.cr.rsi} · ADX > ${S.cr.adx} · trend SMA200 · TP ${S.cr.tpMult}× to 5-SMA · SL ${S.cr.stopAtr}× ATR`;
+if(typeof module !== "undefined") Object.assign(module.exports, {aggregate, smaArr, buildConnors, evalConnors, makeConnorsTrade, runConnors, crKey, crLabel});
+
+
+// ===================== TEST strategies (paper only) — found in the 2026-11-26 deep dive =====================
+// Passed a locked-data check on only 8-9 trades each, so they are flagged TEST until live results confirm them.
+const ALT = {
+  "NZD/USD": {name:"NZD dip-buy (TEST)", desc:"H1 above 200-hr avg + RSI(2) < 15 + Stochastic(14) in bottom 15% + bullish 5-min candle, NY 07-16. TP = $3 net at 0.03 lot, SL = 4x TP, exit after 24h if neither hits."},
+  "EUR/CHF": {name:"EUR/CHF stoch reversal (TEST)", desc:"H1 Stochastic(14,3,3) crosses up below 20 (down above 80) + ADX > 25 + Bollinger width in top 30%, NY 07-16. TP = 0.5x ATR(H1), SL = 2x ATR, exit after 72h if neither hits."}
+};
+function smaWin(x, p){             // window SMA that, like numpy convolve, only goes NaN for windows containing NaN
+  const n=x.length, o=new Float64Array(n).fill(NaN);
+  for(let i=p-1;i<n;i++){ let s=0; for(let k=i-p+1;k<=i;k++) s+=x[k]; o[i]=s/p; }
+  return o;
+}
+function rollExt(x, p, isMax){
+  const n=x.length, o=new Float64Array(n).fill(NaN);
+  for(let i=p-1;i<n;i++){ let v=isMax?-Infinity:Infinity; for(let k=i-p+1;k<=i;k++) v = isMax ? Math.max(v,x[k]) : Math.min(v,x[k]); o[i]=v; }
+  return o;
+}
+function stdPop(x, p){
+  const m=smaWin(x,p), m2=smaWin(Array.from(x,v=>v*v),p);
+  return m.map((v,i)=>Math.sqrt(Math.max(m2[i]-v*v,0)));
+}
+function pctRank(x, p){
+  const n=x.length, o=new Float64Array(n).fill(NaN), y=Array.from(x, v => v===v ? v : Infinity);
+  for(let i=p-1;i<n;i++){ let cnt=0; for(let k=i-p+1;k<=i;k++) if(y[k] < y[i]) cnt++; o[i]=cnt/(p-1); }
+  return o;
+}
+function buildAlt(m5, pair, S){
+  const h1 = aggregate(m5, 60), c1 = h1.map(b=>b.c), hh = h1.map(b=>b.h), ll = h1.map(b=>b.l);
+  const n = m5.length, J = new Int32Array(n), nb = new Uint8Array(n), mod = new Int16Array(n), dw = new Int8Array(n);
+  let j = -1;
+  for(let i=0;i<n;i++){
+    const T = m5[i].t + 5;
+    while(j+1 < h1.length && h1[j+1].t + 60 <= T) j++;
+    J[i]=j; nb[i] = (i===0 || J[i]!==J[i-1]) ? 1 : 0; mod[i] = minOfDay(T); dw[i] = dow(T);
+  }
+  const lo14 = rollExt(ll,14,false), hi14 = rollExt(hh,14,true);
+  const raw = c1.map((v,i)=> (hi14[i]-lo14[i]) > 0 ? (v-lo14[i])/(hi14[i]-lo14[i]) : NaN);
+  const Ks = smaWin(raw.map(v => v===v ? 100*v : 50), 3), D = smaWin(Array.from(Ks), 3);
+  const mid = smaWin(c1,20), sd = stdPop(c1,20);
+  return { pair, pip:pipOf(pair), m5, h1, J, nb, mod, dw, c1,
+    sma200: smaWin(c1,200), rsi2: rsiW(c1,2), adx: adxW(h1,14), atr: smaWin(Array.from(trueRange(h1)),14),
+    raw, Ks, D, bbw: pctRank(c1.map((v,i)=>4*sd[i]/mid[i]),100) };
+}
+function evalAlt(A, i, S, detail){
+  const j = A.J[i]; if(j < 1) return detail ? null : 0;
+  const m = A.mod[i], bar = A.m5[i];
+  const sesOK = m >= 420 && m < 960 && !(A.dw[i]===5 && m >= 900);
+  const fresh = !!A.nb[i];
+  let buy, sell, vals;
+  if(A.pair === "NZD/USD"){
+    const c=A.c1[j], s=A.sma200[j], r=A.rsi2[j], st=A.raw[j];
+    buy  = [sesOK && fresh, c > s, r < 15, st < 0.15, bar.c > bar.o];
+    sell = [sesOK && fresh, c < s, r > 85, st > 0.85, bar.c < bar.o];
+    vals = {rsi2:r, stoch:st*100, trend: c > s ? "Up" : "Down", atrPips:A.atr[j]/A.pip};
+  } else {
+    const k=A.Ks[j], d=A.D[j], kp=A.Ks[j-1], dp=A.D[j-1], ax=A.adx[j], w=A.bbw[j];
+    buy  = [sesOK && fresh, k > d && kp <= dp && k < 20, ax > 25, w > 0.7];
+    sell = [sesOK && fresh, k < d && kp >= dp && k > 80, ax > 25, w > 0.7];
+    vals = {stochK:k, adx:ax, bbw:w*100, atrPips:A.atr[j]/A.pip};
+  }
+  const okB = buy.every(Boolean), okS = sell.every(Boolean);
+  if(!detail) return okB ? 1 : okS ? -1 : 0;
+  return Object.assign({T:bar.t+5, h1t:A.h1[j].t, close:bar.c, buy, sell, buyAll:okB, sellAll:okS,
+    buyPct:Math.round(buy.filter(Boolean).length/buy.length*100), sellPct:Math.round(sell.filter(Boolean).length/sell.length*100)}, vals);
+}
+function makeAltTrade(A, i, side, S){
+  const pair = A.pair, P = S.pairs[pair], pip = A.pip, spr = P.spread*pip, j = A.J[i];
+  const bid = A.m5[i].c, entry = side==="BUY" ? bid + spr : bid, pv = pipValueUSD(pair, bid);
+  const commP = (S.commission || 0) / pv;
+  let tpP, slP, holdBars;
+  if(pair === "NZD/USD"){ tpP = Math.round((3/(pv*0.03) + commP)*10)/10; slP = Math.round(tpP*4*10)/10; holdBars = 288; }
+  else { const a = A.atr[j]/pip; if(!(a > 0)) return null; tpP = Math.round(Math.max(0.5*a,3)*10)/10; slP = Math.round(Math.max(2*a,4)*10)/10; holdBars = 864; }
+  return { side, pair, t:bar5(A,i), entry, spr, slP, tpP, beTrig:Infinity, beDone:false, model:"alt", commP, holdBars, stepped:0, test:true,
+    sl: side==="BUY" ? entry - slP*pip : entry + slP*pip, tp: side==="BUY" ? entry + tpP*pip : entry - tpP*pip };
+}
+const bar5 = (A,i) => A.m5[i].t + 5;
+function runAlt(A, S){
+  const trades = [], n = A.m5.length; let free = 0;
+  for(let i=1;i<n-1;i++){
+    if(i < free || !A.nb[i]) continue;
+    const s = evalAlt(A, i, S, false); if(!s) continue;
+    const tr = makeAltTrade(A, i, s>0 ? "BUY" : "SELL", S); if(!tr) continue;
+    let ev = null, k = i+1;
+    for(; k<n; k++){ ev = stepTrade(tr, A.m5[k], S); if(ev && ev.type==="CLOSE") break; }
+    if(!ev || ev.type!=="CLOSE") break;
+    trades.push({pair:A.pair, side:tr.side, t:tr.t, entry:tr.entry, exit:ev.exit, exitT:ev.t+5, reason:ev.reason, pips:ev.pips, R:ev.R, slP:tr.slP, tpP:tr.tpP});
+    free = k;
+  }
+  return trades;
+}
+if(typeof module !== "undefined") Object.assign(module.exports, {ALT, buildAlt, evalAlt, makeAltTrade, runAlt});
+
+</script>
+<script>
+// ===================== UI =====================
+const LS_KEY = "pro4scanner.v2";
+const state = {
+  S:null, running:false, lastBoundary:null, busy:false,
+  snaps:{}, active:{}, lastSig:{}, bt:{}, btCurves:{}, btTrades:[], log:[], credits:{day:"",n:0},
+  audio:null, dlBusy:false, labBusy:false, lab:null, labSel:null, cacheMeta:{}
+};
+const $ = id => document.getElementById(id);
+const deep = o => JSON.parse(JSON.stringify(o));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const fmtP = (pair, v) => Number(v).toFixed(digitsOf(pair));
+const sgn = (v, d=2) => (v>=0?"+":"") + v.toFixed(d);
+const esc = s => String(s).replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+
+function lsGet(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } }
+function lsSet(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+
+function load(){
+  const saved = lsGet(LS_KEY, {});
+  const S = Object.assign(deep(DEFAULTS), saved.S || {});
+  S.pairs = deep(DEFAULTS.pairs);
+  const sp = (saved.S && saved.S.pairs) || {};
+  for(const p of Object.keys(sp)) S.pairs[p] = Object.assign(S.pairs[p] || {}, sp[p]);   // per-pair merge keeps new fields
+  S.V = Object.assign(deep(ORIGINAL_V), (saved.S && saved.S.V) || {});
+  S.cr = Object.assign(deep(DEFAULTS.cr), (saved.S && saved.S.cr) || {});
+  if(!saved.S || !saved.S.mode) S.mode = "connors";
+  if(!S.pairsV || S.pairsV < 2){ S.pairs["EUR/JPY"].on = true; S.pairsV = 2; }   // one-time: switch on the newly passed pair
+  if(S.pairsV < 3){ for(const p of ["NZD/USD","EUR/CHF"]) Object.assign(S.pairs[p], {on:true, strat:"alt", test:true}); S.pairsV = 3; }   // TEST pairs
+  state.S = S;
+  state.active = saved.active || {};
+  state.lastSig = saved.lastSig || {};
+  state.journal = saved.journal || [];
+  state.autoExportDay = saved.autoExportDay || "";
+  state.bt = saved.bt || {};
+  state.log = saved.log || [];
+  state.credits = saved.credits || {day:"",n:0};
+  state.cacheMeta = saved.cacheMeta || {};
+}
+function persist(){
+  lsSet(LS_KEY, {S:state.S, active:state.active, lastSig:state.lastSig, bt:state.bt, log:state.log.slice(0,300), credits:state.credits, cacheMeta:state.cacheMeta, journal:state.journal, autoExportDay:state.autoExportDay});
+}
+
+// ---------- IndexedDB cache for history ----------
+const memCache = {};
+const IDB = {
+  db:null,
+  open(){
+    if(this.db) return Promise.resolve(this.db);
+    return new Promise((res, rej) => {
+      try{
+        const r = indexedDB.open("pro4", 1);
+        r.onupgradeneeded = () => r.result.createObjectStore("bars");
+        r.onsuccess = () => { this.db = r.result; res(this.db); };
+        r.onerror = () => rej(r.error);
+      }catch(e){ rej(e); }
+    });
+  },
+  async get(k){
+    if(memCache[k]) return memCache[k];
+    try{
+      const db = await this.open();
+      const v = await new Promise((res, rej) => { const q = db.transaction("bars").objectStore("bars").get(k); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); });
+      if(v) memCache[k] = v;
+      return v;
+    }catch(e){ return undefined; }
+  },
+  async put(k, v){
+    memCache[k] = v;
+    try{
+      const db = await this.open();
+      await new Promise((res, rej) => { const tx = db.transaction("bars","readwrite"); tx.objectStore("bars").put(v, k); tx.oncomplete = res; tx.onerror = () => rej(tx.error); });
+    }catch(e){}
+  }
+};
+const packBars = bars => bars.map(b => [b.t,b.o,b.h,b.l,b.c]);
+const unpackBars = a => a.map(x => ({t:x[0],o:x[1],h:x[2],l:x[3],c:x[4]}));
+async function getHistory(pair){ const v = await IDB.get(pair); return v ? unpackBars(v).filter(b => marketOpen(b.t)) : null; }   // weekend quotes removed
+async function saveHistory(pair, bars){
+  await IDB.put(pair, packBars(bars));
+  state.cacheMeta[pair] = {n:bars.length, from:bars[0].t, to:bars[bars.length-1].t};
+  persist(); renderCacheInfo();
+}
+
+// ---------- credits & data ----------
+function creditDay(){ const day = fmtDT(nowNY()).slice(0,10); if(state.credits.day !== day) state.credits = {day, n:0}; }
+function showCredits(){ creditDay(); $("credits").textContent = `credits ${state.credits.n}/800`; $("credits").className = "pill" + (state.credits.n > 750 ? " err" : ""); }
+async function fetchM5(pair, outputsize, endDate){
+  if(!state.S.apiKey) throw new Error("Add your Twelve Data API key in Settings");
+  let url = `https://api.twelvedata.com/time_series?symbol=${encodeURIComponent(pair)}&interval=5min&outputsize=${outputsize}&timezone=America/New_York&order=asc&apikey=${encodeURIComponent(state.S.apiKey)}`;
+  if(endDate) url += `&end_date=${encodeURIComponent(endDate)}`;
+  creditDay(); state.credits.n++; showCredits(); persist();
+  const res = await fetch(url);
+  const js = await res.json();
+  if(js.status === "error"){
+    if(String(js.message||"").toLowerCase().includes("no data")) return [];
+    throw new Error(js.message || `HTTP ${res.status}`);
+  }
+  if(!js.values) return [];
+  return toBars(js.values);
+}
+function sesWinFor(pair){
+  const V = state.S.V;
+  if(isConnors()) return parseWindow(state.S.cr.ses);
+  return V.ses === "rules" ? parseWindow(state.S.pairs[pair].ses) : parseWindow(SESSIONS[V.ses].w);
+}
+function creditEstimate(){
+  if(isConnors()) return PAIRS.filter(p => state.S.pairs[p].on).length * (Math.ceil(windowMinutes(parseWindow(state.S.cr.ses))/60) + 1) + 30;
+  return PAIRS.filter(p => state.S.pairs[p].on).reduce((s,p) => s + Math.ceil(windowMinutes(sesWinFor(p))/5), 0);
+}
+
+// ---------- alerts ----------
+function beep(kind){
+  if(!state.S.sound || !state.audio) return;
+  try{
+    const ctx = state.audio, notes = kind==="BUY" ? [660,880,1100] : kind==="SELL" ? [1100,880,660] : [700,700];
+    notes.forEach((f,i) => {
+      const o = ctx.createOscillator(), g = ctx.createGain(), t0 = ctx.currentTime + i*0.18;
+      o.frequency.value = f; o.type = "triangle";
+      g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.3, t0+0.02); g.gain.exponentialRampToValueAtTime(0.0001, t0+0.16);
+      o.connect(g).connect(ctx.destination); o.start(t0); o.stop(t0+0.17);
+    });
+  }catch(e){}
+}
+async function pushNtfy(title, body, kind){
+  const topic = (state.S.ntfy||"").trim();
+  if(!topic) return;
+  try{
+    await fetch(`https://ntfy.sh/${encodeURIComponent(topic)}`, { method:"POST", body,
+      headers:{ "Title": title, "Priority": kind==="INFO" ? "default" : "high", "Tags": kind==="BUY" ? "green_circle" : kind==="SELL" ? "red_circle" : "bell" } });
+  }catch(e){ addLog("WARN", "ntfy push failed", String(e)); }
+}
+function desktopNotify(title, body){
+  if(!state.S.desktop || typeof Notification === "undefined") return;
+  try{ if(Notification.permission === "granted") new Notification(title, {body}); }catch(e){}
+}
+let flashTimer = null;
+function flashTitle(msg){
+  const base = "PRO4 Reversal — Live Scanner & Strategy Lab";
+  clearInterval(flashTimer); let on = false, n = 0;
+  flashTimer = setInterval(() => { document.title = (on = !on) ? "🔔 " + msg : base; if(++n > 40){ clearInterval(flashTimer); document.title = base; } }, 1000);
+}
+function alertAll(kind, title, body){
+  addLog(kind, title, body); beep(kind); desktopNotify(title, body); pushNtfy(title, body, kind);
+  if(kind === "BUY" || kind === "SELL"){ const b = $("banner"); b.className = "banner " + kind; b.textContent = title; flashTitle(title); }
+}
+function addLog(kind, title, body){
+  state.log.unshift({kind, title, body, at: fmtDT(nowNY())});
+  if(state.log.length > 300) state.log.length = 300;
+  persist(); renderLog();
+}
+
+// ---------- grading ----------
+const isConnors = () => state.S.mode === "connors";
+const stratKey = () => isConnors() ? crKey(state.S) : vKey(state.S.V);
+const isAlt = pair => state.S.pairs[pair] && state.S.pairs[pair].strat === "alt" && !!ALT[pair];
+const pairKey = pair => isAlt(pair) ? "alt|" + pair : stratKey();
+const stratLabel = () => isConnors() ? crLabel(state.S) : vLabel(state.S.V);
+function currentBT(pair){ const b = state.bt[pair]; return b && b.key === pairKey(pair) ? b : null; }
+const TEST_GRADE = {g:"T", cls:"gQ", text:"TEST strategy: its backtest uses the same data it was found on, so it's optimistic. Judge it by its live paper results."};
+// Live-test rules for TEST pairs (journal paper trades only)
+const GRAD = {minTrades:15, minWin:0.80, failAfter:10, failWin:0.70};
+function liveTestStats(pair){
+  const L = state.journal.filter(j => j.pair === pair && String(j.strategy||"").startsWith("TEST") && ["TP","SL","BE","TIME"].includes(j.status));
+  const n = L.length, wins = L.filter(j => j.pips > 0).length, sR = L.reduce((s,j) => s + (j.R||0), 0);
+  return {n, wins, win: n ? wins/n : 0, avgR: n ? sR/n : 0};
+}
+function testStatus(pair){
+  const s = liveTestStats(pair);
+  if(s.n >= GRAD.minTrades && s.win >= GRAD.minWin && s.avgR > 0) return {state:"passed", s};
+  if(s.n >= GRAD.failAfter && (s.win < GRAD.failWin || s.avgR < 0)) return {state:"failing", s};
+  return {state:"testing", s};
+}
+function testGrade(pair){
+  const {state:st, s} = testStatus(pair);
+  const line = `${s.n} live trade${s.n===1?"":"s"} · ${s.n ? Math.round(s.win*100) : 0}% wins · ${s.avgR>=0?"+":""}${s.avgR.toFixed(2)}R`;
+  if(st === "passed"){
+    const g = s.n >= 20 && s.avgR >= 0.15 ? "A" : s.avgR >= 0.05 ? "B" : "C";
+    return {g, cls:"g"+g, text:`Passed its live test: ${line}. OK to trade at 0.01–0.03 lot.`};
+  }
+  if(st === "failing") return {g:"D", cls:"gD", text:`Failing its live test: ${line}. Consider switching it off in Settings.`};
+  return {g:"T", cls:"gQ", text:`Testing · ${Math.min(s.n, GRAD.minTrades)}/${GRAD.minTrades} live trades${s.n ? " · " + line.split(" · ").slice(1).join(" · ") : ""}. Passes at ${GRAD.minTrades}+ trades with ${Math.round(GRAD.minWin*100)}%+ wins and a profit.`};
+}
+const gradeFor = pair => isAlt(pair) ? testGrade(pair) : gradeOf(currentBT(pair));
+function checkGraduation(pair){
+  if(!isAlt(pair)) return;
+  const {state:st, s} = testStatus(pair), P = state.S.pairs[pair], prev = P.testState || "testing";
+  if(st === prev) return;
+  P.testState = st; persist();
+  if(st === "passed") alertAll("INFO", `${pair} PASSED its live test`, `${s.n} paper trades, ${Math.round(s.win*100)}% wins, ${s.avgR>=0?"+":""}${s.avgR.toFixed(2)}R per trade. Its grade is now a letter, and alerts no longer say "paper only". Start at 0.01–0.03 lot.`);
+  else if(st === "failing") alertAll("WARN", `${pair} is failing its live test`, `${s.n} paper trades, ${Math.round(s.win*100)}% wins, ${s.avgR>=0?"+":""}${s.avgR.toFixed(2)}R per trade. Consider switching it off in Settings.`);
+}
+
+// ---------- live scanning ----------
+function signalText(pair, e, tr){
+  const S = state.S, pip = pipOf(pair), side = tr.side;
+  const ls = lotSize(pair, tr.entry, tr.slP, tr.tpP, S);
+  const g = gradeOf(currentBT(pair));
+  const beLine = isFinite(tr.beTrig)
+    ? `Breakeven: at ${fmtP(pair, side==="BUY" ? tr.entry + tr.beTrig*pip : tr.entry - tr.beTrig*pip)} (+${tr.beTrig.toFixed(1)}p) move SL to entry + spread`
+    : "Breakeven: off for this strategy";
+  const title = `${side} ${pair} @ ${fmtP(pair,tr.entry)} · Grade ${g.g}`;
+  const body =
+`${side} ${pair}  entry ≈ ${fmtP(pair,tr.entry)} (${side==="BUY"?"ask":"bid"})
+SL ${fmtP(pair,tr.sl)} (${tr.slP.toFixed(1)}p)   TP ${fmtP(pair,tr.tp)} (${tr.tpP.toFixed(1)}p)
+${beLine}
+Lot ${ls.lots.toFixed(2)} → risk ≈ $${ls.risk.toFixed(2)} / reward ≈ $${ls.reward.toFixed(2)}
+RSI ${e.r1.toFixed(1)}/${e.r2.toFixed(1)}  %K ${e.k1.toFixed(1)} %D ${e.d1.toFixed(1)}  ATR ${e.atrPips.toFixed(1)}p  ADX ${isFinite(e.adx)?e.adx.toFixed(0):"-"}
+Wick past band: ${(side==="BUY"?e.depthB:e.depthS).toFixed(1)}p
+Grade ${g.g}: ${g.text}`;
+  return {title, body};
+}
+
+async function scanPair(pair, force){
+  if(isAlt(pair)) return scanPairAlt(pair, force);
+  if(isConnors()) return scanPairConnors(pair, force);
+  const S = state.S;
+  const now = nowNY();
+  const w = sesWinFor(pair);
+  const inSes = inWindow(minOfDay(now + 0.5), w) || inWindow(minOfDay(now - 5), w);
+  const hasTrade = !!state.active[pair];
+  if(!force && !inSes && !hasTrade && !S.scanOutside){
+    state.snaps[pair] = Object.assign(state.snaps[pair]||{}, {idle:true, msg:"Outside session", error:null});
+    return;
+  }
+  let bars;
+  try{ bars = await fetchM5(pair, 1000); }
+  catch(err){ state.snaps[pair] = Object.assign(state.snaps[pair]||{}, {error:String(err.message||err)}); return; }
+  const closed = bars.filter(b => b.t + 5 <= now + 0.05);
+  if(closed.length < 300){ state.snaps[pair] = {error:"Not enough data returned"}; return; }
+  const F = buildFeatures(closed, pair, S, [S.V.bbD]);
+  const X = compileV(S.V, pair, S);
+  const i = closed.length - 1;
+  const e = evalBar(F, i, X, true);
+  state.snaps[pair] = {e, price:bars[bars.length-1].c, barTime:closed[i].t, updated:now, idle:false, error:null};
+
+  // virtual trade tracking
+  const act = state.active[pair];
+  if(act){
+    for(const b of closed){
+      if(b.t < act.nextT) continue;
+      const ev = stepTrade(act.tr, b, S);
+      act.nextT = b.t + 5;
+      if(ev && ev.type === "BE_MOVE"){
+        alertAll("WARN", `${pair}: move SL to breakeven ${fmtP(pair, ev.sl)}`, `${act.tr.side} from ${fmtP(pair,act.tr.entry)} reached +${act.tr.beTrig.toFixed(1)} pips.`);
+      } else if(ev && ev.type === "CLOSE"){
+        alertAll(ev.reason==="TP" ? "INFO" : "WARN", `${pair} ${act.tr.side} closed: ${ev.reason} (${sgn(ev.pips,1)} pips, ${sgn(ev.R)}R)`, `Entry ${fmtP(pair,act.tr.entry)} → exit ${fmtP(pair,ev.exit)} at ${fmtDT(ev.t+5).slice(0,16)} NY`);
+        journalClose(act.jid, ev);
+        delete state.active[pair];
+        break;
+      }
+    }
+    persist();
+  }
+
+  if(e && (e.buyAll || e.sellAll) && state.lastSig[pair] !== closed[i].t){
+    if(S.track && state.active[pair]){
+      addLog("INFO", `${pair}: setup ignored (virtual trade still open)`, "Rule: max 1 trade per pair.");
+    } else {
+      const tr = makeTrade(F, i, e.buyAll ? "BUY" : "SELL", S.V, S);
+      state.lastSig[pair] = closed[i].t;
+      if(tr){
+        if(S.track){ const jid = journalOpen(tr, pair); state.active[pair] = {tr, nextT: closed[i].t + 5, jid}; }
+        persist();
+        const {title, body} = signalText(pair, e, tr);
+        alertAll(tr.side, title, body);
+      } else {
+        addLog("INFO", `${pair}: setup skipped`, "Target to the middle band was under 3 pips.");
+      }
+    }
+  }
+}
+
+async function scanAll(force){
+  if(state.busy) return;
+  state.busy = true; $("runPill").textContent = "scanning…";
+  const now = nowNY();
+  if(!force && !marketOpen(now)){
+    PAIRS.forEach(p => state.snaps[p] = Object.assign(state.snaps[p]||{}, {idle:true, msg:"Forex market closed", error:null}));
+  } else {
+    for(const p of PAIRS){ if(!state.S.pairs[p].on) continue; await scanPair(p, force); renderCards(); }
+  }
+  state.busy = false;
+  $("runPill").textContent = state.running ? "running" : "stopped";
+  renderCards();
+}
+
+function tick(){
+  const now = nowNY();
+  autoExportCheck(now);
+  $("clock").textContent = fmtDT(now).slice(0,16) + " NY";
+  if(!state.running) return;
+  const boundary = Math.floor(now/5)*5;
+  if(boundary !== state.lastBoundary && (now - boundary)*60 >= 15){ state.lastBoundary = boundary; scanAll(false); }
+}
+
+// ---------- render: live ----------
+function labels(side){
+  const V = state.S.V, b = side==="BUY";
+  const filt = V.filter==="none" ? "" : V.filter==="trend" ? (b ? " & above EMA" : " & below EMA") : ` & ADX<${V.filter==="adx25"?25:20}`;
+  return [
+    "Session open (not rollover)",
+    "ATR < cap" + filt,
+    b ? "M15 wick below lower BB, close back inside" : "M15 wick above upper BB, close back inside",
+    b ? `RSI ≤ ${V.rsiOS} (bar 1 or 2)` : `RSI ≥ ${V.rsiOB} (bar 1 or 2)`,
+    V.st==="off" ? "Stoch trigger (off)" : (b ? "M5 %K crossed above %D" : "M5 %K crossed below %D"),
+    V.st==="off" ? "Stoch zone (off)" : (b ? `%K < ${V.st}` : `%K > ${100-V.st}`)
+  ];
+}
+function sideHTML(cls, title, pct, conds, lbl){
+  return `<div class="side ${cls}"><h4><span>${title}</span><span>${pct}%</span></h4><div class="bar"><i style="width:${pct}%"></i></div>
+    ${lbl.map((l,k) => `<div class="cond ${conds[k]?"ok":""}"><span class="m">${conds[k]?"✓":"·"}</span>${l}</div>`).join("")}</div>`;
+}
+function renderCards(){
+  const S = state.S;
+  $("liveStrat").innerHTML = `<b>Active strategy:</b> ${esc(stratLabel())}`;
+  $("cards").innerHTML = PAIRS.filter(p => S.pairs[p].on).map(pair => {
+    if(isAlt(pair)) return altCard(pair);
+    if(isConnors()) return connorsCard(pair);
+    const P = S.pairs[pair], s = state.snaps[pair] || {}, e = s.e, act = state.active[pair];
+    const g = gradeOf(currentBT(pair));
+    const sig = e ? (e.buyAll ? "sig-buy" : e.sellAll ? "sig-sell" : "") : "";
+    const w = sesWinFor(pair);
+    const sesTxt = S.V.ses==="rules" ? P.ses : SESSIONS[S.V.ses].w;
+    const status = s.error ? `<span style="color:var(--sell)">${esc(s.error)}</span>` : s.idle ? s.msg
+      : s.updated ? `M5 bar ${fmtDT(s.barTime).slice(11,16)} closed · checked ${fmtDT(s.updated).slice(11,16)}` : "Not scanned yet";
+    const stats = e ? `<div class="stats">
+        <div class="stat"><b>${e.atrPips.toFixed(1)}p</b><span>ATR (cap ${P.atr})</span></div>
+        <div class="stat"><b>${e.r1.toFixed(1)}</b><span>RSI M15</span></div>
+        <div class="stat"><b>${e.k1.toFixed(0)}/${e.d1.toFixed(0)}</b><span>%K/%D M5</span></div>
+        <div class="stat"><b>${isFinite(e.adx)?e.adx.toFixed(0):"–"}</b><span>ADX M15</span></div>
+      </div>
+      <div class="sides">${sideHTML("buy","BUY setup",e.buyPct,e.buy,labels("BUY"))}${sideHTML("sell","SELL setup",e.sellPct,e.sell,labels("SELL"))}</div>` : "";
+    const tradeBox = act ? `<div class="trade-box"><div class="row"><b>${act.tr.side} open (virtual)</b><button class="small" data-clear="${pair}">Dismiss</button></div>
+        entry ${fmtP(pair,act.tr.entry)} · SL ${fmtP(pair,act.tr.sl)}${act.tr.beDone?" (BE)":""} · TP ${fmtP(pair,act.tr.tp)}</div>` : "";
+    return `<div class="card ${sig}">
+      <h3><span>${pair}</span><span class="price">${s.price ? fmtP(pair,s.price) : "—"}</span></h3>
+      <div class="sub">Session ${sesTxt} NY · ${S.V.exit==="fixed" ? `TP ${P.tp} / SL ${P.sl}` : EXITS[S.V.exit]} · spread ${P.spread}p</div>
+      <div class="sub">${status}</div>${stats}${tradeBox}
+      <div class="bt-line"><span class="grade ${g.cls}">${g.g}</span> ${g.text}</div></div>`;
+  }).join("") || `<div class="sub">No pairs enabled. Turn some on in Settings.</div>`;
+  document.querySelectorAll("[data-clear]").forEach(b => b.onclick = () => { const a = state.active[b.dataset.clear]; if(a) journalVoid(a.jid); delete state.active[b.dataset.clear]; persist(); renderCards(); });
+  const todo = [];
+  if(!S.apiKey) todo.push("add your Twelve Data API key");
+  if(!S.ntfy) todo.push("set an ntfy topic for phone alerts");
+  if(!PAIRS.some(p => currentBT(p))) todo.push("run a backtest of the active strategy so signals get a grade");
+  const est = creditEstimate();
+  const credWarn = est > 750 ? ` <span style="color:var(--sell)">⚠ This session setup needs about ${est} credits a day (free limit 800). Turn off a pair or pick a shorter session.</span>` : ` About ${est} credits a day.`;
+  $("liveNote").innerHTML = (todo.length ? `<b>To do:</b> ${todo.join(" · ")}.` : isConnors()
+      ? `Checks every pair right after each hourly close during ${S.cr.ses} NY, and every 5 minutes while a paper trade is open. The % shows how many of the 4 conditions are met; a signal fires at 100%.`
+      : `Checks each pair 15 seconds after every 5-minute close during its session. The % shows how many of the 6 conditions are met; a signal fires at 100%.`) + credWarn;
+}
+function renderLog(){
+  $("log").innerHTML = state.log.length ? state.log.map(x =>
+    `<div class="entry ${x.kind}"><div class="t">${x.at} NY</div><b>${esc(x.title)}</b>${x.body?`<pre>${esc(x.body)}</pre>`:""}</div>`).join("")
+    : `<div class="sub">No signals yet.</div>`;
+}
+
+// ---------- history download ----------
+async function downloadHistory(list){
+  if(state.dlBusy) return;
+  if(!state.S.apiKey){ $("dlStatus").textContent = "Add your API key in Settings first."; return; }
+  state.dlBusy = true; $("dlBtn").disabled = $("updBtn").disabled = $("dlTestBtn").disabled = true;
+  // Twelve Data returns weekend bars too, so a month is about 30.5 days of 5-minute bars
+  const months = +$("dlMonths").value, need = Math.ceil(months*30.5*288), chunks = Math.max(1, Math.ceil(need/5000));
+  const pairs = Array.isArray(list) ? list : PAIRS.filter(p => state.S.pairs[p].on);
+  const total = pairs.length*chunks; let done = 0;
+  try{
+    for(const pair of pairs){
+      let all = [], end = null;
+      for(let c=0;c<chunks;c++){
+        $("dlStatus").textContent = `Downloading ${pair} (${c+1}/${chunks}). Pausing between calls to respect the free 8/min limit…`;
+        const bars = await fetchM5(pair, 5000, end);
+        done++; $("dlProg").style.width = (done/total*100)+"%";
+        if(done < total) await sleep(8000);
+        if(!bars.length) break;
+        all = bars.concat(all);
+        end = fmtDT(bars[0].t - 5);
+      }
+      all = dedupe(all.sort((a,b)=>a.t-b.t));
+      if(all.length) await saveHistory(pair, all);
+      renderCacheInfo();
+    }
+    $("dlStatus").textContent = "History saved ✓ Now run the Backtest or the Strategy Lab (no extra credits).";
+  }catch(err){ $("dlStatus").textContent = "Error: " + (err.message||err) + " (wait a minute and press again)"; }
+  state.dlBusy = false; $("dlBtn").disabled = $("updBtn").disabled = $("dlTestBtn").disabled = false;
+}
+async function updateHistory(){
+  if(state.dlBusy) return;
+  state.dlBusy = true; $("dlBtn").disabled = $("updBtn").disabled = true;
+  try{
+    const pairs = PAIRS.filter(p => state.S.pairs[p].on);
+    for(let k=0;k<pairs.length;k++){
+      const pair = pairs[k], old = await getHistory(pair);
+      if(!old){ $("dlStatus").textContent = `${pair}: nothing saved yet. Use Download first.`; continue; }
+      $("dlStatus").textContent = `Updating ${pair}…`;
+      const bars = await fetchM5(pair, 5000);
+      const now = nowNY();
+      const merged = dedupe(old.concat(bars.filter(b => b.t + 5 <= now)).sort((a,b)=>a.t-b.t));
+      await saveHistory(pair, merged);
+      $("dlProg").style.width = ((k+1)/pairs.length*100)+"%";
+      renderCacheInfo();
+      if(k < pairs.length-1) await sleep(8000);
+    }
+    $("dlStatus").textContent = "Updated ✓";
+  }catch(err){ $("dlStatus").textContent = "Error: " + (err.message||err); }
+  state.dlBusy = false; $("dlBtn").disabled = $("updBtn").disabled = false;
+}
+function renderCacheInfo(){
+  const m = state.cacheMeta, rows = PAIRS.filter(p => m[p]).map(p => `${p}: ${m[p].n.toLocaleString()} bars (${fmtDT(m[p].from).slice(0,10)} → ${fmtDT(m[p].to).slice(0,10)})`);
+  $("cacheInfo").textContent = rows.length ? "Saved: " + rows.join(" · ") : "No history saved yet.";
+}
+async function loadFeatures(devs){
+  const out = {};
+  for(const p of PAIRS){
+    if(!state.S.pairs[p].on) continue;
+    const bars = await getHistory(p);
+    if(bars && bars.length > 2000) out[p] = buildFeatures(bars, p, state.S, devs);
+  }
+  return out;
+}
+
+// ---------- backtest ----------
+async function runBacktest(){
+  $("btStatus").textContent = "Running…"; await sleep(20);
+  const feats = {};
+  for(const p of PAIRS){
+    if(!state.S.pairs[p].on) continue;
+    const bars = await getHistory(p);
+    if(bars && bars.length > 3000) feats[p] = isAlt(p) ? buildAlt(bars, p, state.S) : isConnors() ? buildConnors(bars, p, state.S) : buildFeatures(bars, p, state.S, [state.S.V.bbD]);
+  }
+  if(!Object.keys(feats).length){ $("btStatus").textContent = "Download history first (step 1)."; return; }
+  const key = stratKey();
+  state.bt = {}; state.btCurves = {}; state.btTrades = [];
+  for(const p in feats){
+    const F = feats[p];
+    const trades = isAlt(p) ? runAlt(F, state.S) : isConnors() ? runConnors(F, state.S) : runStrategy(F, state.S.V, state.S);
+    const sum = summarize(trades, state.S, F.m5[F.m5.length-1].t - F.m5[0].t);
+    state.btCurves[p] = sum.curve; delete sum.curve;
+    state.bt[p] = {...sum, key: pairKey(p), from:F.m5[0].t, to:F.m5[F.m5.length-1].t};
+    state.btTrades.push(...trades);
+  }
+  state.btTrades.sort((a,b) => b.t - a.t);
+  persist();
+  $("btStatus").textContent = `Done: ${state.btTrades.length} trades.`;
+  renderBacktest(); renderTradeList(); renderCards(); renderAccountSim();
+}
+const COLORS = {"EUR/USD":"#4ea1ff","GBP/USD":"#2ecc71","USD/CHF":"#f5b942","USD/JPY":"#c58bff","AUD/USD":"#ff8a65","NZD/USD":"#4dd0e1","USD/CAD":"#e57373","EUR/JPY":"#aed581","GBP/JPY":"#f06292","EUR/GBP":"#90a4ae","AUD/JPY":"#ffd54f","EUR/CHF":"#9575cd"};
+function renderBacktest(){
+  $("btStrat").innerHTML = `<b>Current strategy:</b> ${esc(stratLabel())}`;
+  const rows = PAIRS.filter(p => currentBT(p)).map(p => [p, currentBT(p)]);
+  if(!rows.length){ $("btResults").innerHTML = `<div class="sub" style="margin-top:8px">No backtest for the current strategy yet.</div>`; drawCurves(); return; }
+  const tot = rows.reduce((a,[,r]) => ({n:a.n+r.trades, tp:a.tp+r.tp, sR:a.sR+r.sumR}), {n:0,tp:0,sR:0});
+  $("btResults").innerHTML = `<table><tr><th>Pair</th><th>Period</th><th>Trades</th><th>TP</th><th>SL</th><th>BE</th><th>TP rate</th><th>Needed</th><th>Net pips</th><th>Avg R</th><th>PF</th><th>Max SL streak</th><th>Max DD @${state.S.risk}%</th><th>Return @${state.S.risk}%</th><th>Trades/wk</th><th>Grade</th></tr>
+    ${rows.map(([p,r]) => { const g = isAlt(p) ? testGrade(p) : gradeOf(r); return `<tr>
+      <td><span style="color:${COLORS[p]}">●</span> ${p}${isAlt(p) ? ' <span class="sub">(TEST)</span>' : ""}</td><td>${fmtDT(r.from).slice(0,10)} → ${fmtDT(r.to).slice(0,10)}</td>
+      <td>${r.trades}</td><td>${r.tp}</td><td>${r.sl}</td><td>${r.be}</td>
+      <td>${(r.winRate*100).toFixed(1)}%</td><td>${(r.need*100).toFixed(1)}%</td>
+      <td class="${r.net>=0?"pos":"neg"}">${r.net.toFixed(1)}</td><td class="${r.avgR>=0?"pos":"neg"}">${sgn(r.avgR)}</td>
+      <td>${isFinite(r.pf)?r.pf.toFixed(2):"∞"}</td><td>${r.maxStreak}</td><td>${(r.maxDD*100).toFixed(1)}%</td>
+      <td class="${r.ret>=0?"pos":"neg"}">${(r.ret*100).toFixed(1)}%</td><td>${r.perWeek.toFixed(1)}</td>
+      <td><span class="grade ${g.cls}">${g.g}</span></td></tr>`; }).join("")}
+    <tr><td><b>All pairs</b></td><td></td><td><b>${tot.n}</b></td><td><b>${tot.tp}</b></td><td colspan="5"></td><td class="${tot.sR>=0?"pos":"neg"}"><b>${tot.n?sgn(tot.sR/tot.n):"–"}</b></td><td colspan="6"></td></tr></table>`;
+  drawCurves();
+}
+function drawCurves(){
+  const cv = $("btChart"), ctx = cv.getContext("2d"), W = cv.width, H = cv.height;
+  ctx.clearRect(0,0,W,H);
+  const series = Object.entries(state.btCurves).filter(([,c]) => c && c.length > 1);
+  if(!series.length){ ctx.fillStyle="#8b98a9"; ctx.font="22px system-ui"; ctx.fillText("Equity curves appear after a backtest", 24, H/2); $("btChartLegend").textContent=""; return; }
+  let lo=Infinity, hi=-Infinity, maxN=0;
+  series.forEach(([,c]) => { c.forEach(v => { lo=Math.min(lo,v); hi=Math.max(hi,v); }); maxN=Math.max(maxN,c.length); });
+  lo=Math.min(lo,1); hi=Math.max(hi,1); const pad=30;
+  const y = v => H-pad-(v-lo)/(hi-lo||1)*(H-2*pad);
+  ctx.strokeStyle="#2a3342"; ctx.setLineDash([6,6]); ctx.beginPath(); ctx.moveTo(pad,y(1)); ctx.lineTo(W-pad,y(1)); ctx.stroke(); ctx.setLineDash([]);
+  series.forEach(([p,c]) => { ctx.strokeStyle=COLORS[p]; ctx.lineWidth=2.5; ctx.beginPath();
+    c.forEach((v,k) => { const x = pad + k/(maxN-1||1)*(W-2*pad); k ? ctx.lineTo(x,y(v)) : ctx.moveTo(x,y(v)); }); ctx.stroke(); });
+  $("btChartLegend").textContent = `Account growth trade by trade at ${state.S.risk}% risk (dashed = start). Low ${(lo*100-100).toFixed(0)}%, high ${sgn(hi*100-100,0)}%.`;
+}
+function filteredTrades(){
+  const p = $("tlPair").value, r = $("tlRes").value;
+  return state.btTrades.filter(t => (!p || t.pair===p) && (!r || t.reason===r));
+}
+function renderTradeList(){
+  const list = filteredTrades();
+  $("tlCount").textContent = state.btTrades.length ? `${list.length} trades` : "";
+  $("tradeList").innerHTML = list.length ? `<table><tr><th>Signal (M5 close, NY)</th><th>Pair</th><th>Side</th><th>Entry</th><th>SL pips</th><th>TP pips</th><th>Exit</th><th>Exit time</th><th>Result</th><th>Pips</th><th>R</th></tr>
+    ${list.slice(0,1000).map(t => `<tr><td>${fmtDT(t.t).slice(0,16)}</td><td>${t.pair}</td><td style="color:${t.side==="BUY"?"var(--buy)":"var(--sell)"}">${t.side}</td>
+      <td>${fmtP(t.pair,t.entry)}</td><td>${t.slP.toFixed(1)}</td><td>${t.tpP.toFixed(1)}</td><td>${fmtP(t.pair,t.exit)}</td><td>${fmtDT(t.exitT).slice(5,16)}</td>
+      <td>${t.reason}</td><td class="${t.pips>=0?"pos":"neg"}">${sgn(t.pips,1)}</td><td class="${t.R>=0?"pos":"neg"}">${sgn(t.R)}</td></tr>`).join("")}</table>`
+    : `<div class="sub">No trades to show.</div>`;
+}
+function downloadCSV(){
+  const list = filteredTrades();
+  const csv = ["signal_time_NY,pair,side,entry,sl_pips,tp_pips,exit,exit_time_NY,result,pips,R"]
+    .concat(list.map(t => [fmtDT(t.t),t.pair,t.side,fmtP(t.pair,t.entry),t.slP.toFixed(1),t.tpP.toFixed(1),fmtP(t.pair,t.exit),fmtDT(t.exitT),t.reason,t.pips.toFixed(1),t.R.toFixed(3)].join(","))).join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv"}));
+  a.download = "pro4_backtest_trades.csv"; document.body.appendChild(a); a.click(); a.remove();
+}
+
+// ---------- strategy lab ----------
+async function runLabUI(){
+  if(state.labBusy) return;
+  state.labBusy = true; $("labRunBtn").disabled = true;
+  $("labStatus").textContent = "Preparing data…"; $("labProg").style.width = "0%"; await sleep(20);
+  try{
+    const feats = await loadFeatures([2.0, 2.2, 2.5]);
+    if(!Object.keys(feats).length){ $("labStatus").textContent = "Download history first (Backtest tab, step 1)."; state.labBusy=false; $("labRunBtn").disabled=false; return; }
+    const split = +$("labSplit").value;
+    const t0 = Date.now();
+    const res = await runLab(feats, state.S, split, async f => { $("labProg").style.width = (f*100)+"%"; $("labStatus").textContent = `Testing… ${(f*100).toFixed(0)}%`; await sleep(0); });
+    const span = {}; for(const p in feats){ const m = feats[p].m5; span[p] = {from:m[0].t, to:m[m.length-1].t, split: m[0].t + (m[m.length-1].t-m[0].t)*split}; }
+    state.lab = {res, span, split};
+    state.labSel = null;
+    $("labStatus").textContent = `Tested ${res.length.toLocaleString()} versions in ${((Date.now()-t0)/1000).toFixed(1)}s.`;
+    renderLab();
+  }catch(err){ $("labStatus").textContent = "Error: " + (err.message||err); }
+  state.labBusy = false; $("labRunBtn").disabled = false;
+}
+// Strict gate: tuned so that 0 versions pass on pure random-walk data (tested on 8 random datasets)
+const isRobust = r => r.oos.n >= 30 && r.oos.t >= 2 && r.is.t >= 2 && r.oos.pf > 1.2;
+const isPromising = r => !isRobust(r) && r.oos.n >= 20 && r.oos.t >= 1.2 && r.is.t >= 1.5 && r.oos.avgR > 0;
+function rankedLab(){
+  const L = state.lab; if(!L) return [];
+  const minN = +$("labMinN").value || 0, mode = $("labSort").value;
+  let list = L.res.filter(r => r.is.n >= minN);
+  if(mode === "robust") list = list.filter(r => r.oos.n >= 10).sort((a,b) => Math.min(b.is.t,b.oos.t) - Math.min(a.is.t,a.oos.t));
+  else list.sort((a,b) => b.is.t - a.is.t);
+  return list;
+}
+function statCells(s){
+  return `<td>${s.n}</td><td>${(s.win*100).toFixed(0)}%</td><td class="${s.avgR>=0?"pos":"neg"}">${sgn(s.avgR)}</td><td>${isFinite(s.pf)?s.pf.toFixed(2):"∞"}</td><td>${s.t.toFixed(1)}</td>`;
+}
+function renderLab(){
+  const L = state.lab; if(!L){ $("labResults").innerHTML = ""; return; }
+  const list = rankedLab(), top = list.slice(0, 30);
+  const base = L.res.find(r => r.key === vKey(ORIGINAL_V));
+  const robust = L.res.filter(r => isRobust(r) && r.is.n >= (+$("labMinN").value||0));
+  const robustTop = top.filter(isRobust).length, promTop = top.filter(isPromising).length;
+  const sp = Object.values(L.span)[0];
+  const periodTxt = sp ? `In-sample ${fmtDT(sp.from).slice(0,10)} → ${fmtDT(sp.split).slice(0,10)} · Out-of-sample ${fmtDT(sp.split).slice(0,10)} → ${fmtDT(sp.to).slice(0,10)}` : "";
+  let vClass, vText;
+  if(robustTop >= 1){ vClass="good"; vText=`<b>${robustTop} of the top 30 passed the strict test on unseen data</b> (${robust.length} robust versions in total). That's a real signal, not luck. Open Details on the strongest one, check each pair, then Apply it and paper trade 3–4 weeks before you risk money.`; }
+  else if(promTop >= 1){ vClass="meh"; vText=`<b>No version passed the strict test, but ${promTop} look promising</b> (positive on unseen data, not yet statistically solid). This is a lead, not an edge. Download 12 months of history and rerun. If the same kind of setup stays on top and passes, it's worth paper trading.`; }
+  else { vClass="bad"; vText=`<b>None of the top-ranked versions held up on the data they hadn't seen.</b> On this history, the band-touch + RSI + Stochastic reversal doesn't show a reliable edge in any session, filter or exit tested. Don't trade it live as-is. Next steps: test 12 months of history, or change the entry idea itself rather than tuning it further.`; }
+  $("labVerdict").innerHTML = `<div class="sub">${periodTxt}</div><div class="verdict ${vClass}">${vText}</div>`;
+  const row = (r, k, cls="") => `<tr class="${cls} ${state.labSel===r.key?"sel":""}">
+    <td>${k}</td><td class="l">${SESSIONS[r.V.ses].label}</td><td class="l">BB ${r.V.bbD} · RSI ${r.V.rsiOS}/${r.V.rsiOB} · ${r.V.st==="off"?"no stoch":"stoch "+r.V.st} · ${FILTERS[r.V.filter]}</td>
+    <td class="l">${EXITS[r.V.exit]}</td><td class="l">${BES[r.V.be]}</td>
+    ${statCells(r.is)}${statCells(r.oos)}
+    <td>${isRobust(r) ? '<span class="ok-badge">✓ robust</span>' : isPromising(r) ? '<span style="color:var(--warn)">~ lead</span>' : ""}</td>
+    <td><button class="small" data-det="${r.key}">Details</button></td></tr>`;
+  $("labResults").innerHTML = `<table><tr><th>#</th><th class="l">Session</th><th class="l">Entry</th><th class="l">Exit</th><th class="l">BE</th>
+      <th>IS trades</th><th>IS TP%</th><th>IS avg R</th><th>IS PF</th><th>IS t</th>
+      <th>OOS trades</th><th>OOS TP%</th><th>OOS avg R</th><th>OOS PF</th><th>OOS t</th><th>Robust</th><th></th></tr>
+    ${base ? row(base, "orig", "base") : ""}
+    ${top.map((r,k) => row(r, k+1)).join("")}</table>
+    <div class="sub" style="margin-top:6px">Highlighted row = your original PRO4 rules. IS = in-sample (used for ranking). OOS = out-of-sample (never used for ranking). Showing the top 30 of ${list.length.toLocaleString()} versions with ≥ ${$("labMinN").value} in-sample trades.</div>`;
+  document.querySelectorAll("[data-det]").forEach(b => b.onclick = () => { state.labSel = b.dataset.det; renderLab(); renderLabDetail(); });
+  renderLabDetail();
+}
+function renderLabDetail(){
+  const L = state.lab; if(!L || !state.labSel){ $("labDetail").innerHTML = ""; return; }
+  const r = L.res.find(x => x.key === state.labSel); if(!r) return;
+  $("labDetail").innerHTML = `<div class="section">Details</div>
+    <div class="stratbox">${esc(vLabel(r.V))}</div>
+    <table><tr><th>Pair</th><th>IS trades</th><th>IS TP%</th><th>IS avg R</th><th>IS PF</th><th>IS t</th><th>OOS trades</th><th>OOS TP%</th><th>OOS avg R</th><th>OOS PF</th><th>OOS t</th></tr>
+    ${Object.entries(r.per).map(([p,s]) => `<tr><td>${p}</td>${statCells(s.is)}${statCells(s.oos)}</tr>`).join("")}
+    <tr><td><b>All</b></td>${statCells(r.is)}${statCells(r.oos)}</tr></table>
+    <div class="note">Look for the edge on most pairs, not just one carrying the total. A pair that's negative in both halves can be switched off in Settings.</div>
+    <div class="flex"><button class="primary" id="applyBtn">Apply to live scanner &amp; backtest it</button></div>`;
+  $("applyBtn").onclick = async () => {
+    state.S.V = {...r.V}; persist(); fillSettings(); renderCards();
+    addLog("INFO", "Strategy changed", vLabel(r.V));
+    document.querySelector('nav button[data-tab="backtest"]').click();
+    await runBacktest();
+  };
+}
+
+// ---------- settings ----------
+const FIELDS = ["apiKey","ntfy","sound","desktop","scanOutside","track","autoExport","commission","balance","risk","maxLot","useFixed","fixedLot","beTrigger","beMult","beExtra","bbP","rsiP","atrP","adxP","emaP","stK","stD","stS","rollover"];
+function fillSelect(id, obj, val){ $(id).innerHTML = Object.entries(obj).map(([k,v]) => `<option value="${k}" ${String(k)===String(val)?"selected":""}>${typeof v==="string"?v:v.label}</option>`).join(""); }
+function fillSettings(){
+  const S = state.S;
+  FIELDS.forEach(f => { const el = $("s_"+f); if(!el) return; el.type==="checkbox" ? el.checked = !!S[f] : el.value = S[f]; });
+  $("s_mode").value = S.mode;
+  ["rsi","adx","ses","stopAtr","tpMult","minTp"].forEach(k => $("cr_"+k).value = S.cr[k]);
+  fillSelect("v_ses", SESSIONS, S.V.ses); fillSelect("v_st", STOCHS, S.V.st); fillSelect("v_filter", FILTERS, S.V.filter);
+  fillSelect("v_exit", EXITS, S.V.exit); fillSelect("v_be", BES, S.V.be);
+  $("v_rsiOS").value = S.V.rsiOS; $("v_rsiOB").value = S.V.rsiOB; $("v_bbD").value = S.V.bbD;
+  $("pairTbl").innerHTML = `<tr><th>Pair</th><th>On</th><th>TP pips</th><th>SL pips</th><th>Max ATR pips</th><th>Session (NY)</th><th>Spread pips</th></tr>` +
+    PAIRS.map(p => { const P = S.pairs[p], id = p.replace("/",""); return `<tr><td>${p}${P.strat==="alt" ? ' <span class="sub">TEST strategy</span>' : ""}</td>
+      <td><input type="checkbox" id="p_${id}_on" ${P.on?"checked":""}></td>
+      <td><input type="number" step="0.1" id="p_${id}_tp" value="${P.tp}"></td>
+      <td><input type="number" step="0.1" id="p_${id}_sl" value="${P.sl}"></td>
+      <td><input type="number" step="0.1" id="p_${id}_atr" value="${P.atr}"></td>
+      <td><input class="ses" id="p_${id}_ses" value="${P.ses}"></td>
+      <td><input type="number" step="0.1" id="p_${id}_spread" value="${P.spread}"></td></tr>`; }).join("");
+}
+function readSettings(){
+  const S = state.S, bad = [];
+  FIELDS.forEach(f => { const el = $("s_"+f); if(!el) return;
+    if(el.type==="checkbox") S[f] = el.checked;
+    else if(el.type==="number"){ const v = parseFloat(el.value); if(isFinite(v)) S[f] = v; }
+    else S[f] = el.value.trim(); });
+  S.V = { ses:$("v_ses").value, st:$("v_st").value, filter:$("v_filter").value, exit:$("v_exit").value, be:$("v_be").value,
+          rsiOS: parseFloat($("v_rsiOS").value)||25, rsiOB: parseFloat($("v_rsiOB").value)||75, bbD: parseFloat($("v_bbD").value)||2.2 };
+  S.mode = $("s_mode").value;
+  ["rsi","adx","stopAtr","tpMult","minTp"].forEach(k => { const v = parseFloat($("cr_"+k).value); if(isFinite(v)) S.cr[k] = v; });
+  S.cr.ses = $("cr_ses").value.trim(); if(!parseWindow(S.cr.ses)) bad.push("Connors session");
+  if(!parseWindow(S.rollover)) bad.push("rollover window");
+  PAIRS.forEach(p => { const id = p.replace("/",""), P = S.pairs[p];
+    P.on = $(`p_${id}_on`).checked;
+    ["tp","sl","atr","spread"].forEach(k => { const v = parseFloat($(`p_${id}_${k}`).value); if(isFinite(v)) P[k] = v; });
+    P.ses = $(`p_${id}_ses`).value.trim(); if(!parseWindow(P.ses)) bad.push(p+" session"); });
+  return bad;
+}
+
+// ---------- wiring ----------
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("nav button").forEach(x => x.classList.toggle("active", x===b));
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.id === "tab-"+b.dataset.tab));
+  if(b.dataset.tab === "backtest") renderBacktest();
+});
+function unlockAudio(){
+  try{ if(!state.audio) state.audio = new (window.AudioContext||window.webkitAudioContext)(); state.audio.resume(); }catch(e){}
+  try{
+    if(!window.__notifAsked && state.S.desktop && typeof Notification !== "undefined" && Notification.permission === "default"){
+      window.__notifAsked = true;
+      Notification.requestPermission();
+    }
+  }catch(e){}
+}
+$("startBtn").onclick = () => {
+  unlockAudio();
+  state.running = !state.running;
+  $("startBtn").textContent = state.running ? "Stop scanner" : "Start scanner";
+  $("runPill").textContent = state.running ? "running" : "stopped";
+  $("runPill").className = "pill" + (state.running ? " on" : "");
+  if(state.running){ addLog("INFO", "Scanner started", stratLabel()); scanAll(true); state.lastBoundary = Math.floor(nowNY()/5)*5; }
+};
+$("scanNowBtn").onclick = () => { unlockAudio(); scanAll(true); };
+$("dlBtn").onclick = () => downloadHistory();
+$("dlTestBtn").onclick = () => downloadHistory(TEST_PAIRS);
+$("updBtn").onclick = updateHistory;
+$("btRunBtn").onclick = runBacktest;
+$("tlPair").innerHTML = `<option value="">All</option>` + PAIRS.map(p => `<option>${p}</option>`).join("");
+$("tlPair").onchange = $("tlRes").onchange = renderTradeList;
+$("csvBtn").onclick = downloadCSV;
+$("labRunBtn").onclick = runLabUI;
+$("labSort").onchange = $("labMinN").onchange = renderLab;
+$("clearLogBtn").onclick = () => { state.log = []; persist(); renderLog(); };
+$("saveBtn").onclick = () => { const bad = readSettings(); persist(); renderCards(); renderBacktest(); $("saveStatus").textContent = bad.length ? "Saved, but check format: " + bad.join(", ") : "Saved ✓"; };
+$("crResetBtn").onclick = () => { state.S.cr = deep(DEFAULTS.cr); state.S.mode = "connors"; persist(); fillSettings(); renderCards(); $("saveStatus").textContent = "Connors settings reset to the tested values"; };
+$("origBtn").onclick = () => { state.S.V = deep(ORIGINAL_V); persist(); fillSettings(); renderCards(); $("saveStatus").textContent = "Strategy reset to original PRO4 rules"; };
+$("resetBtn").onclick = () => { const k = state.S.apiKey, n = state.S.ntfy; state.S = deep(DEFAULTS); state.S.apiKey = k; state.S.ntfy = n; fillSettings(); persist(); renderCards(); $("saveStatus").textContent = "Defaults restored (key & topic kept)"; };
+$("testAlertBtn").onclick = () => { unlockAudio(); readSettings(); persist(); alertAll("BUY", "TEST · BUY EUR/USD @ 1.08500 · Grade ?", "This is a test alert from your PRO4 scanner."); };
+$("banner").onclick = () => $("banner").className = "banner";
+
+load(); fillSettings(); renderCards(); renderLog(); renderBacktest(); renderCacheInfo(); showCredits();
+tick(); setInterval(tick, 5000);
+
+
+// ===================== Paper-trade journal =====================
+let journalFileHandle = null;
+function journalOpen(tr, pair, name){
+  const ls = lotSize(pair, tr.entry, tr.slP, tr.tpP, state.S);
+  const j = {
+    id: Date.now() + "-" + pair.replace("/",""), pair, side: tr.side, signalT: tr.t,
+    entry: tr.entry, sl: tr.sl, tp: tr.tp, slP: tr.slP, tpP: tr.tpP,
+    lots: ls.lots, riskUSD: ls.risk, status: "OPEN", exit: null, exitT: null, pips: null, R: null, plUSD: null,
+    strategy: name || stratLabel()
+  };
+  state.journal.unshift(j);
+  journalChanged();
+  return j.id;
+}
+function journalClose(id, ev){
+  const j = state.journal.find(x => x.id === id); if(!j) return;
+  j.status = ev.reason; j.exit = ev.exit; j.exitT = ev.t + 5; j.pips = ev.pips; j.R = ev.R; j.plUSD = ev.R * j.riskUSD;
+  journalChanged();
+  checkGraduation(j.pair);
+}
+function journalVoid(id){
+  const j = state.journal.find(x => x.id === id); if(!j || j.status !== "OPEN") return;
+  j.status = "VOID"; journalChanged();
+}
+function journalCSV(){
+  const head = "signal_time_NY,pair,side,entry,sl,tp,sl_pips,tp_pips,lots,risk_usd,status,exit,exit_time_NY,pips,R,paper_pl_usd,strategy";
+  const rows = state.journal.slice().reverse().map(j => [
+    fmtDT(j.signalT), j.pair, j.side, fmtP(j.pair,j.entry), fmtP(j.pair,j.sl), fmtP(j.pair,j.tp), j.slP.toFixed(1), j.tpP.toFixed(1),
+    j.lots.toFixed(2), j.riskUSD.toFixed(2), j.status, j.exit!=null?fmtP(j.pair,j.exit):"", j.exitT?fmtDT(j.exitT):"",
+    j.pips!=null?j.pips.toFixed(1):"", j.R!=null?j.R.toFixed(3):"", j.plUSD!=null?j.plUSD.toFixed(2):"", '"'+j.strategy.replace(/"/g,"'")+'"'
+  ].join(","));
+  return [head].concat(rows).join("\n");
+}
+async function writeJournalFile(){
+  if(!journalFileHandle) return;
+  try{
+    const w = await journalFileHandle.createWritable();
+    await w.write(journalCSV()); await w.close();
+    $("jFileStatus").textContent = `Linked file updated ${fmtDT(nowNY()).slice(11,16)} NY ✓`;
+  }catch(e){
+    $("jFileStatus").textContent = "Couldn't write to the linked file. Press 'Link a journal file' again. (" + (e.message||e) + ")";
+    journalFileHandle = null;
+  }
+}
+function journalChanged(){ persist(); renderJournal(); writeJournalFile(); }
+function downloadJournal(){
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([journalCSV()], {type:"text/csv"}));
+  a.download = `pro4_paper_journal_${fmtDT(nowNY()).slice(0,10)}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+async function linkJournalFile(){
+  if(!window.showSaveFilePicker){ $("jFileStatus").textContent = "This browser can't link a file. Use Chrome or Edge, or rely on the daily auto-download."; return; }
+  try{
+    journalFileHandle = await window.showSaveFilePicker({ suggestedName:"pro4_paper_journal.csv", types:[{description:"CSV", accept:{"text/csv":[".csv"]}}] });
+    await writeJournalFile();
+  }catch(e){ if(e.name !== "AbortError") $("jFileStatus").textContent = "Link failed: " + (e.message||e); }
+}
+function autoExportCheck(now){
+  if(!state.S.autoExport || !state.journal.length) return;
+  const day = fmtDT(now).slice(0,10), m = minOfDay(now), d = dow(now);
+  if(d === 0 || d === 6) return;
+  if(m >= 16*60+10 && state.autoExportDay !== day){
+    const today = state.journal.some(j => fmtDT(j.signalT).slice(0,10) === day || (j.exitT && fmtDT(j.exitT).slice(0,10) === day));
+    state.autoExportDay = day; persist();
+    if(today){ downloadJournal(); addLog("INFO", "Daily journal saved", `pro4_paper_journal_${day}.csv was saved to your Downloads folder.`); }
+  }
+}
+function renderJournal(){
+  if(!$("jStats")) return;
+  const closed = state.journal.filter(j => ["TP","SL","BE"].includes(j.status));
+  const open = state.journal.filter(j => j.status === "OPEN");
+  const n = closed.length, tp = closed.filter(j => j.status==="TP").length;
+  const sR = closed.reduce((s,j) => s + j.R, 0), pl = closed.reduce((s,j) => s + j.plUSD, 0);
+  const bts = PAIRS.map(p => currentBT(p)).filter(Boolean);
+  const btN = bts.reduce((s,b) => s + b.trades, 0), btR = btN ? bts.reduce((s,b) => s + b.sumR, 0)/btN : null;
+  const btTP = btN ? bts.reduce((s,b) => s + b.tp, 0)/btN : null;
+  const [lo, hi] = wilson(tp, n);
+  let verdict = "";
+  if(n >= 12 && btR != null){
+    const diff = sR/n - btR;
+    verdict = diff > -0.25 ? `<span class="pos">Tracking the backtest reasonably well so far.</span>` : `<span class="neg">Running well below the backtest. Keep watching, and check the trades against your broker's chart.</span>`;
+  } else verdict = `Need about 12+ closed trades before comparing with the backtest (${n} so far).`;
+  $("jStats").innerHTML = `<div class="stats" style="grid-template-columns:repeat(6,1fr)">
+    <div class="stat"><b>${n}</b><span>closed paper trades</span></div>
+    <div class="stat"><b>${open.length}</b><span>open now</span></div>
+    <div class="stat"><b>${n?(tp/n*100).toFixed(0)+"%":"–"}</b><span>TP rate${n?` (95% ${(lo*100).toFixed(0)}–${(hi*100).toFixed(0)}%)`:""}</span></div>
+    <div class="stat"><b class="${sR>=0?"pos":"neg"}">${n?sgn(sR/n):"–"}</b><span>avg R per trade</span></div>
+    <div class="stat"><b class="${sR>=0?"pos":"neg"}">${sgn(sR,1)}R</b><span>total R</span></div>
+    <div class="stat"><b class="${pl>=0?"pos":"neg"}">${pl>=0?"+":"−"}$${Math.abs(pl).toFixed(2)}</b><span>paper P/L</span></div></div>
+    <div class="sub">Backtest for the current strategy: ${btR!=null?`${(btTP*100).toFixed(0)}% TP rate, ${sgn(btR)}R per trade over ${btN} trades`:"run the Backtest to compare"}. ${verdict}</div>`;
+  $("jTable").innerHTML = state.journal.length ? `<table><tr><th>Signal (NY)</th><th>Pair</th><th>Side</th><th>Entry</th><th>SL</th><th>TP</th><th>Lots</th><th>Status</th><th>Exit</th><th>Exit time</th><th>Pips</th><th>R</th><th>Paper $</th></tr>
+    ${state.journal.slice(0,500).map(j => `<tr><td>${fmtDT(j.signalT).slice(0,16)}</td><td>${j.pair}</td><td style="color:${j.side==="BUY"?"var(--buy)":"var(--sell)"}">${j.side}</td>
+      <td>${fmtP(j.pair,j.entry)}</td><td>${fmtP(j.pair,j.sl)}</td><td>${fmtP(j.pair,j.tp)}</td><td>${j.lots.toFixed(2)}</td>
+      <td>${j.status==="OPEN"?'<span style="color:var(--warn)">OPEN</span>':j.status}</td><td>${j.exit!=null?fmtP(j.pair,j.exit):""}</td><td>${j.exitT?fmtDT(j.exitT).slice(5,16):""}</td>
+      <td class="${(j.pips||0)>=0?"pos":"neg"}">${j.pips!=null?sgn(j.pips,1):""}</td><td class="${(j.R||0)>=0?"pos":"neg"}">${j.R!=null?sgn(j.R):""}</td>
+      <td class="${(j.plUSD||0)>=0?"pos":"neg"}">${j.plUSD!=null?(j.plUSD>=0?"+":"−")+"$"+Math.abs(j.plUSD).toFixed(2):""}</td></tr>`).join("")}</table>`
+    : `<div class="sub">No paper trades yet. Every alert lands here automatically while the scanner is running.</div>`;
+}
+let clearArmed = false;
+$("jDownloadBtn").onclick = downloadJournal;
+$("jLinkBtn").onclick = linkJournalFile;
+$("jClearBtn").onclick = () => {
+  if(!clearArmed){ clearArmed = true; $("jClearBtn").textContent = "Click again to erase all paper trades"; setTimeout(() => { clearArmed = false; $("jClearBtn").textContent = "Clear journal"; }, 4000); return; }
+  clearArmed = false; $("jClearBtn").textContent = "Clear journal";
+  state.journal = []; Object.keys(state.active).forEach(k => delete state.active[k]); journalChanged(); renderCards();
+};
+renderJournal();
+
+
+// ===================== Export history for offline research =====================
+async function exportHistory(){
+  const out = {format:"pro4-history-v1", time:"naive New York minutes since epoch (t), 5-minute bars, bid", exported:fmtDT(nowNY()), pairs:{}};
+  for(const p of PAIRS){ const v = await IDB.get(p); if(v) out.pairs[p] = v; }
+  if(!Object.keys(out.pairs).length){ $("dlStatus").textContent = "Nothing saved yet. Download history first."; return; }
+  let blob = new Blob([JSON.stringify(out)], {type:"application/json"}), name = `pro4_history_${fmtDT(nowNY()).slice(0,10)}.json`;
+  try{
+    if(typeof CompressionStream !== "undefined"){
+      blob = await new Response(blob.stream().pipeThrough(new CompressionStream("gzip"))).blob();
+      name += ".gz";
+    }
+  }catch(e){}
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  $("dlStatus").textContent = `Exported ${name} (${(blob.size/1048576).toFixed(1)} MB) to your Downloads folder. Upload it in the chat.`;
+}
+$("exportBtn").onclick = exportHistory;
+
+
+// ===================== Connors RSI-2 live scanning =====================
+async function scanPairConnors(pair, force){
+  const S = state.S, now = nowNY(), m = minOfDay(now), w = parseWindow(S.cr.ses);
+  const nearHourClose = (m % 60) < 12;
+  const inSes = inWindow(minOfDay(now - 12), w) || inWindow(m, w);
+  const act = state.active[pair];
+  if(!force && !act && !(inSes && nearHourClose) && !S.scanOutside){
+    state.snaps[pair] = Object.assign(state.snaps[pair]||{}, {idle:true, msg: inSes ? "Waiting for the next hourly close" : "Outside session", error:null});
+    return;
+  }
+  let bars;
+  try{ bars = await fetchM5(pair, 5000); }
+  catch(err){ state.snaps[pair] = Object.assign(state.snaps[pair]||{}, {error:String(err.message||err)}); return; }
+  const closed = bars.filter(b => b.t + 5 <= now + 0.05);
+  if(closed.length < 2600){ state.snaps[pair] = {error:"Not enough history returned for the 200-hour average"}; return; }
+  const C = buildConnors(closed, pair, S);
+  const last = closed.length - 1;
+  // evaluate the most recent hourly close within the last 3 M5 bars (tolerates a late scan)
+  let iSig = last;
+  for(let k=last; k>=Math.max(0,last-2); k--) if(C.nb[k]){ iSig = k; break; }
+  const e = evalConnors(C, iSig, S, true);
+  state.snaps[pair] = {e, price:bars[bars.length-1].c, barTime:closed[last].t, updated:now, idle:false, error:null};
+
+  if(act){
+    for(const b of closed){
+      if(b.t < act.nextT) continue;
+      const ev = stepTrade(act.tr, b, S); act.nextT = b.t + 5;
+      if(ev && ev.type === "CLOSE"){
+        alertAll(ev.reason==="TP" ? "INFO" : "WARN", `${pair} ${act.tr.side} closed: ${ev.reason} (${sgn(ev.pips,1)} pips)`,
+          `Entry ${fmtP(pair,act.tr.entry)} → exit ${fmtP(pair,ev.exit)} at ${fmtDT(ev.t+5).slice(0,16)} NY`);
+        journalClose(act.jid, ev); delete state.active[pair]; break;
+      }
+    }
+    persist();
+  }
+  const sigBar = closed[iSig].t;
+  if(e && (e.buyAll || e.sellAll) && state.lastSig[pair] !== sigBar){
+    state.lastSig[pair] = sigBar;
+    if(S.track && state.active[pair]){ addLog("INFO", `${pair}: signal ignored (paper trade still open)`, "Rule: one trade per pair at a time."); persist(); return; }
+    const tr = makeConnorsTrade(C, iSig, e.buyAll ? "BUY" : "SELL", S);
+    if(!tr){ addLog("INFO", `${pair}: setup skipped`, `Target to the 5-hour average was under ${S.cr.minTp} pips.`); persist(); return; }
+    if(S.track){ const jid = journalOpen(tr, pair); state.active[pair] = {tr, nextT: sigBar + 5, jid}; }
+    persist();
+    const ls = lotSize(pair, tr.entry, tr.slP, tr.tpP, S), g = gradeOf(currentBT(pair));
+    const title = `${tr.side} ${pair} @ ${fmtP(pair,tr.entry)} · TP ${fmtP(pair,tr.tp)} · SL ${fmtP(pair,tr.sl)}`;
+    const body =
+`${tr.side} ${pair} (Connors RSI-2) entry ≈ ${fmtP(pair,tr.entry)}
+TP ${fmtP(pair,tr.tp)} (+${tr.tpP.toFixed(1)}p)   SL ${fmtP(pair,tr.sl)} (−${tr.slP.toFixed(1)}p)
+Set both in MT4 and leave it: no breakeven, no manual exit.
+Lot ${ls.lots.toFixed(2)} → reward ≈ $${ls.reward.toFixed(2)} / risk ≈ $${ls.risk.toFixed(2)} (${ls.riskPct.toFixed(1)}% of balance${ls.minLot ? ", minimum lot, above your risk %" : ""})
+H1: RSI(2) ${e.rsi2.toFixed(1)} · ADX ${e.adx.toFixed(0)} · ${e.buyAll ? "above" : "below"} 200-hr avg · ATR ${e.atrPips.toFixed(1)}p
+Grade ${g.g}: ${g.text}`;
+    alertAll(tr.side, title, body);
+  }
+}
+function connorsCard(pair){
+  const S = state.S, P = S.pairs[pair], s = state.snaps[pair] || {}, e = s.e, act = state.active[pair], g = gradeOf(currentBT(pair));
+  const sig = e ? (e.buyAll ? "sig-buy" : e.sellAll ? "sig-sell" : "") : "";
+  const status = s.error ? `<span style="color:var(--sell)">${esc(s.error)}</span>` : s.idle ? s.msg
+    : s.updated ? `Hourly bar ${fmtDT(e ? e.h1t : s.barTime).slice(11,16)} · checked ${fmtDT(s.updated).slice(11,16)}` : "Not scanned yet";
+  const lb = ["Session open & hourly bar just closed", "Above 200-hour average (uptrend)", `RSI(2) < ${S.cr.rsi}`, `ADX > ${S.cr.adx} (strong trend)`];
+  const ls = ["Session open & hourly bar just closed", "Below 200-hour average (downtrend)", `RSI(2) > ${100-S.cr.rsi}`, `ADX > ${S.cr.adx} (strong trend)`];
+  const stats = e ? `<div class="stats">
+      <div class="stat"><b>${e.rsi2.toFixed(1)}</b><span>RSI(2) H1</span></div>
+      <div class="stat"><b>${e.adx.toFixed(0)}</b><span>ADX H1</span></div>
+      <div class="stat"><b>${e.close > e.sma200 ? "Up" : "Down"}</b><span>vs 200-hr avg</span></div>
+      <div class="stat"><b>${e.atrPips.toFixed(1)}p</b><span>ATR H1</span></div></div>
+    <div class="sides">${sideHTML("buy","BUY setup",e.buyPct,e.buy,lb)}${sideHTML("sell","SELL setup",e.sellPct,e.sell,ls)}</div>` : "";
+  const tradeBox = act ? `<div class="trade-box"><div class="row"><b>${act.tr.side} open (paper)</b><button class="small" data-clear="${pair}">Dismiss</button></div>
+      entry ${fmtP(pair,act.tr.entry)} · SL ${fmtP(pair,act.tr.sl)} · TP ${fmtP(pair,act.tr.tp)}</div>` : "";
+  return `<div class="card ${sig}"><h3><span>${pair}</span><span class="price">${s.price ? fmtP(pair,s.price) : "—"}</span></h3>
+    <div class="sub">Connors RSI-2 · ${S.cr.ses} NY · spread ${P.spread}p + $${S.commission}/lot</div>
+    <div class="sub">${status}</div>${stats}${tradeBox}
+    <div class="bt-line"><span class="grade ${g.cls}">${g.g}</span> ${g.text}</div></div>`;
+}
+
+// live USD conversion for cross-pair lot sizing, from the latest scanned prices
+function liveUsdPer(ccy){
+  const px = p => (state.snaps[p] && state.snaps[p].price) || null;
+  if(ccy === "USD") return 1;
+  if(ccy === "JPY") return px("USD/JPY") ? 1/px("USD/JPY") : null;
+  if(ccy === "CHF") return px("USD/CHF") ? 1/px("USD/CHF") : null;
+  if(ccy === "CAD") return px("USD/CAD") ? 1/px("USD/CAD") : null;
+  if(ccy === "GBP") return px("GBP/USD");
+  if(ccy === "EUR") return px("EUR/USD");
+  return null;
+}
+
+
+// ===================== TEST pairs (NZD/USD, EUR/CHF): live scanning, paper only =====================
+async function scanPairAlt(pair, force){
+  const S = state.S, now = nowNY(), m = minOfDay(now), act = state.active[pair];
+  const inSes = (m >= 420 && m < 972);
+  if(!force && !act && !(inSes && (m % 60) < 12) && !S.scanOutside){
+    state.snaps[pair] = Object.assign(state.snaps[pair]||{}, {idle:true, msg: inSes ? "Waiting for the next hourly close" : "Outside session (07:00-16:00 NY)", error:null});
+    return;
+  }
+  let bars;
+  try{ bars = await fetchM5(pair, 5000); }
+  catch(err){ state.snaps[pair] = Object.assign(state.snaps[pair]||{}, {error:String(err.message||err)}); return; }
+  const closed = bars.filter(b => b.t + 5 <= now + 0.05);
+  if(closed.length < 2600){ state.snaps[pair] = {error:"Not enough history returned"}; return; }
+  const A = buildAlt(closed, pair, S), last = closed.length - 1;
+  let iSig = last; for(let k=last; k>=Math.max(0,last-2); k--) if(A.nb[k]){ iSig = k; break; }
+  const e = evalAlt(A, iSig, S, true);
+  state.snaps[pair] = {e, price:bars[bars.length-1].c, barTime:closed[last].t, updated:now, idle:false, error:null};
+  if(act){
+    for(const b of closed){
+      if(b.t < act.nextT) continue;
+      const ev = stepTrade(act.tr, b, S); act.nextT = b.t + 5;
+      if(ev && ev.type === "CLOSE"){
+        alertAll(ev.reason==="TP" ? "INFO" : "WARN", `TEST · ${pair} ${act.tr.side} closed: ${ev.reason} (${sgn(ev.pips,1)} pips)`,
+          `Paper-only test strategy. Entry ${fmtP(pair,act.tr.entry)} → exit ${fmtP(pair,ev.exit)} at ${fmtDT(ev.t+5).slice(0,16)} NY`);
+        journalClose(act.jid, ev); delete state.active[pair]; break;
+      }
+    }
+    persist();
+  }
+  const sigBar = closed[iSig].t;
+  if(e && (e.buyAll || e.sellAll) && state.lastSig[pair] !== sigBar){
+    state.lastSig[pair] = sigBar;
+    if(state.active[pair]){ addLog("INFO", `${pair}: TEST signal ignored (paper trade still open)`, ""); persist(); return; }
+    const tr = makeAltTrade(A, iSig, e.buyAll ? "BUY" : "SELL", S); if(!tr){ persist(); return; }
+    const jid = journalOpen(tr, pair, "TEST: " + ALT[pair].name); state.active[pair] = {tr, nextT: sigBar + 5, jid}; persist();
+    const hold = pair === "NZD/USD" ? "24h" : "72h";
+    const passed = testStatus(pair).state === "passed";
+    alertAll(tr.side, `${passed ? "PASSED TEST" : "TEST · paper only"} · ${tr.side} ${pair} @ ${fmtP(pair,tr.entry)} · TP ${fmtP(pair,tr.tp)} · SL ${fmtP(pair,tr.sl)}`,
+`${passed ? "This strategy passed its live paper test. OK to trade at 0.01–0.03 lot." : "TEST strategy, paper only. Don't trade it with real money yet."}
+${ALT[pair].name}: ${tr.side} ${pair} entry ≈ ${fmtP(pair,tr.entry)}
+TP ${fmtP(pair,tr.tp)} (+${tr.tpP.toFixed(1)}p)   SL ${fmtP(pair,tr.sl)} (−${tr.slP.toFixed(1)}p)   time exit after ${hold}
+It's logged in the journal so its live record builds up.`);
+  }
+}
+function altCard(pair){
+  const S = state.S, P = S.pairs[pair], s = state.snaps[pair] || {}, e = s.e, act = state.active[pair], g = gradeFor(pair);
+  const sig = e ? (e.buyAll ? "sig-buy" : e.sellAll ? "sig-sell" : "") : "";
+  const status = s.error ? `<span style="color:var(--sell)">${esc(s.error)}</span>` : s.idle ? s.msg
+    : s.updated ? `Hourly bar ${fmtDT(e ? e.h1t : s.barTime).slice(11,16)} · checked ${fmtDT(s.updated).slice(11,16)}` : "Not scanned yet";
+  const nz = pair === "NZD/USD";
+  const lb = nz ? ["Session & hourly close","Above 200-hr avg","RSI(2) < 15","Stochastic bottom 15%","Bullish 5-min candle"]
+                : ["Session & hourly close","Stoch crosses up below 20","ADX > 25","Bollinger width top 30%"];
+  const ls = nz ? ["Session & hourly close","Below 200-hr avg","RSI(2) > 85","Stochastic top 15%","Bearish 5-min candle"]
+                : ["Session & hourly close","Stoch crosses down above 80","ADX > 25","Bollinger width top 30%"];
+  const stats = e ? `<div class="stats">${nz
+      ? `<div class="stat"><b>${e.rsi2.toFixed(1)}</b><span>RSI(2) H1</span></div><div class="stat"><b>${e.stoch.toFixed(0)}</b><span>Stoch H1</span></div><div class="stat"><b>${e.trend}</b><span>vs 200-hr</span></div>`
+      : `<div class="stat"><b>${e.stochK.toFixed(0)}</b><span>Stoch %K H1</span></div><div class="stat"><b>${e.adx.toFixed(0)}</b><span>ADX H1</span></div><div class="stat"><b>${e.bbw.toFixed(0)}%</b><span>BB width rank</span></div>`}
+      <div class="stat"><b>${e.atrPips.toFixed(1)}p</b><span>ATR H1</span></div></div>
+    <div class="sides">${sideHTML("buy","BUY setup",e.buyPct,e.buy,lb)}${sideHTML("sell","SELL setup",e.sellPct,e.sell,ls)}</div>` : "";
+  const tradeBox = act ? `<div class="trade-box"><div class="row"><b>${act.tr.side} open (paper)</b><button class="small" data-clear="${pair}">Dismiss</button></div>
+      entry ${fmtP(pair,act.tr.entry)} · SL ${fmtP(pair,act.tr.sl)} · TP ${fmtP(pair,act.tr.tp)}</div>` : "";
+  const tst = testStatus(pair).state;
+  const pill = tst === "passed" ? `<span class="pill" style="color:var(--buy);border-color:var(--buy)">PASSED TEST</span>`
+             : tst === "failing" ? `<span class="pill" style="color:var(--sell);border-color:var(--sell)">FAILING TEST</span>`
+             : `<span class="pill" style="color:var(--warn);border-color:var(--warn)">TEST · paper only</span>`;
+  return `<div class="card ${sig}" style="border-style:${tst === "passed" ? "solid" : "dashed"}"><h3><span>${pair} ${pill}</span><span class="price">${s.price ? fmtP(pair,s.price) : "—"}</span></h3>
+    <div class="sub">${ALT[pair].name} · 07:00-16:00 NY · spread ${P.spread}p + $${S.commission}/lot</div>
+    <div class="sub">${status}</div>${stats}${tradeBox}
+    <div class="bt-line"><span class="grade ${g.cls}">${g.g}</span> ${g.text}</div></div>`;
+}
+
+
+// ===================== Account simulator (Backtest tab) =====================
+function simSettings(){
+  const S = state.S;
+  if(S.simStart == null) S.simStart = S.balance || 25;
+  if(S.simLot == null) S.simLot = S.useFixed ? S.fixedLot : 0.03;
+  if(S.simLev == null) S.simLev = 500;
+  if(S.simTest == null) S.simTest = false;
+  return S;
+}
+function fillSim(){ const S = simSettings(); $("simStart").value = S.simStart; $("simLot").value = S.simLot; $("simLev").value = S.simLev; $("simTest").checked = !!S.simTest; }
+function marginUSD(pair, price, lot, lev){
+  const base = pair.split("/")[0];
+  return lot * 100000 * (base === "USD" ? 1 : price * usdPer(pair.split("/")[1])) / lev;   // notional in USD / leverage
+}
+function readSimInputs(){
+  const S = simSettings(), el = id => document.getElementById(id);
+  if(!el("simStart")) return S;
+  const st = parseFloat(el("simStart").value), lt = parseFloat(el("simLot").value), lv = parseFloat(el("simLev").value);
+  if(isFinite(st)) S.simStart = st;
+  if(isFinite(lt) && lt > 0) S.simLot = lt;
+  if(isFinite(lv) && lv > 0) S.simLev = lv;
+  S.simTest = el("simTest").checked;
+  return S;
+}
+function renderAccountSim(){
+  const S = readSimInputs();          // always use what's in the boxes right now
+  const start = +S.simStart || 0, lot = +S.simLot || 0, lev = +S.simLev || 500;
+  const trades = state.btTrades.filter(t => (S.simTest || !isAlt(t.pair)) && S.pairs[t.pair] && S.pairs[t.pair].on);
+  const cv = $("simChart"), ctx = cv.getContext("2d"); ctx.clearRect(0, 0, cv.width, cv.height);
+  if(!trades.length){
+    const saved = PAIRS.filter(p => state.cacheMeta[p]).length;
+    $("simOut").innerHTML = `<div class="note">${state.btTrades.length ? "No trades for the pairs selected. Tick “Include TEST pairs” or switch pairs on in Settings."
+      : saved ? "Press <b>Run backtest</b> above. The simulator replays its trades in dollars."
+      : "No history saved on this device yet. Use <b>Download history</b> (step 1), then <b>Run backtest</b>."}</div>`;
+    $("simLegend").textContent = ""; return;
+  }
+  // replay in order of exit time; P/L scales with lot size (pips already include spread + commission)
+  const T = trades.slice().sort((a,b) => a.exitT - b.exitT);
+  let bal = start, peak = start, maxDD = 0, maxDDpct = 0, low = start, blownAt = null, wins = 0;
+  const curve = [{t:T[0].t, b:start}], months = {}, perPair = {};
+  for(const [k, tr] of T.entries()){
+    const usd = tr.pips * pipValueUSD(tr.pair, tr.entry) * lot;
+    bal += usd; if(usd > 0) wins++;
+    peak = Math.max(peak, bal); low = Math.min(low, bal);
+    maxDD = Math.max(maxDD, peak - bal); maxDDpct = Math.max(maxDDpct, peak > 0 ? (peak - bal) / peak : 0);
+    if(blownAt === null && bal <= 0) blownAt = k + 1;
+    curve.push({t:tr.exitT, b:bal});
+    const m = fmtDT(tr.exitT).slice(0,7); months[m] = (months[m] || 0) + usd;
+    perPair[tr.pair] = perPair[tr.pair] || {n:0, usd:0}; perPair[tr.pair].n++; perPair[tr.pair].usd += usd;
+  }
+  // margin check: most trades open at the same time
+  const ev = []; for(const tr of trades){ ev.push([tr.t, 1, tr]); ev.push([tr.exitT, -1, tr]); }
+  ev.sort((a,b) => a[0]-b[0] || a[1]-b[1]); let open = 0, maxOpen = 0, need = 0, maxNeed = 0;
+  for(const [, d, tr] of ev){ const m = marginUSD(tr.pair, tr.entry, lot, lev); open += d; need += d*m; maxOpen = Math.max(maxOpen, open); maxNeed = Math.max(maxNeed, need); }
+  const weeks = Math.max(1, (T[T.length-1].exitT - T[0].t) / 10080);
+  const pnl = bal - start, avg = pnl / T.length, mVals = Object.entries(months);
+  const best = mVals.reduce((a,b) => b[1] > a[1] ? b : a), worst = mVals.reduce((a,b) => b[1] < a[1] ? b : a);
+  const avgLoss = T.filter(t => t.pips <= 0).reduce((s,t) => s + t.pips * pipValueUSD(t.pair, t.entry) * lot, 0) / Math.max(1, T.filter(t => t.pips <= 0).length);
+  const money = v => (v < 0 ? "−$" : "$") + Math.abs(v).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+  const warn = [];
+  if(blownAt) warn.push(`<b style="color:var(--sell)">The account hits $0 at trade ${blownAt}.</b> This lot size is too big for this balance.`);
+  else if(low < start * 0.5) warn.push(`The balance drops to ${money(low)} at its lowest, more than half the account. That's a lot of risk for this balance.`);
+  if(maxNeed > start * 0.8) warn.push(`Margin: with up to ${maxOpen} trades open at once, you'd need about ${money(maxNeed)} of margin at 1:${lev}, which is close to or above your starting balance. Your broker could stop you out.`);
+  if(Math.abs(avgLoss) > start * 0.1) warn.push(`One average loss (${money(avgLoss)}) is ${Math.round(Math.abs(avgLoss)/start*100)}% of your starting balance. Most traders keep it at 1–3%.`);
+  $("simOut").innerHTML = `
+    <div class="stats" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
+      <div class="stat"><b>${money(start)}</b><span>starting balance</span></div>
+      <div class="stat"><b class="${bal>=start?"pos":"neg"}" style="font-size:16px">${money(bal)}</b><span>ending balance</span></div>
+      <div class="stat"><b class="${pnl>=0?"pos":"neg"}">${pnl>=0?"+":""}${money(pnl)} (${start ? (pnl/start*100).toFixed(0) : 0}%)</b><span>profit / loss</span></div>
+      <div class="stat"><b>${T.length} · ${Math.round(wins/T.length*100)}% wins</b><span>trades · ${(T.length/weeks).toFixed(1)}/week</span></div>
+      <div class="stat"><b class="${avg>=0?"pos":"neg"}">${avg>=0?"+":""}${money(avg)}</b><span>average per trade</span></div>
+      <div class="stat"><b class="neg">−${money(maxDD).replace("$","$")} (${(maxDDpct*100).toFixed(0)}%)</b><span>worst drop from a high</span></div>
+      <div class="stat"><b>${money(low)}</b><span>lowest balance</span></div>
+      <div class="stat"><b>${money(maxNeed)}</b><span>max margin used (1:${lev})</span></div>
+    </div>
+    <div class="sub">Best month ${best[0]}: ${money(best[1])} · Worst month ${worst[0]}: ${money(worst[1])} · ${fmtDT(T[0].t).slice(0,10)} → ${fmtDT(T[T.length-1].exitT).slice(0,10)} at ${lot.toFixed(2)} lot</div>
+    <div class="sub" style="margin-top:4px">${Object.entries(perPair).map(([p,v]) => `${p}: ${v.n} trades ${v.usd>=0?"+":""}${money(v.usd)}`).join(" · ")}</div>
+    ${warn.length ? `<div class="note" style="border-color:var(--warn)">${warn.join("<br>")}</div>` : ""}`;
+  // chart: balance over time
+  const W = cv.width, H = cv.height, pad = 36;
+  const ts = curve.map(p => p.t), bs = curve.map(p => p.b);
+  const t0 = Math.min(...ts), t1 = Math.max(...ts), lo = Math.min(...bs, start), hi = Math.max(...bs, start);
+  const X = t => pad + (t - t0) / (t1 - t0 || 1) * (W - 2*pad), Y = v => H - pad - (v - lo) / (hi - lo || 1) * (H - 2*pad);
+  ctx.strokeStyle = "#2a3342"; ctx.setLineDash([6,6]); ctx.beginPath(); ctx.moveTo(pad, Y(start)); ctx.lineTo(W-pad, Y(start)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.strokeStyle = bal >= start ? "#2ecc71" : "#ff5c5c"; ctx.lineWidth = 3; ctx.beginPath();
+  curve.forEach((p,i) => i ? ctx.lineTo(X(p.t), Y(p.b)) : ctx.moveTo(X(p.t), Y(p.b))); ctx.stroke();
+  ctx.fillStyle = "#8b98a9"; ctx.font = "20px system-ui";
+  ctx.fillText(money(hi), 6, Y(hi) + 18); ctx.fillText(money(lo), 6, Y(lo) - 6);
+  $("simLegend").textContent = `Account balance after each trade closes (dashed line = starting balance). Results include spread and $${S.commission}/lot commission. Past results don't guarantee future ones.`;
+}
+["simStart","simLot","simLev","simTest"].forEach(id => ["input","change","keyup","blur"].forEach(evt =>
+  $(id).addEventListener(evt, () => { renderAccountSim(); persist(); })));
+$("simRecalc").onclick = () => { renderAccountSim(); persist(); };
+// Chrome can restore old box values after a refresh without telling the page: re-sync once the page has settled
+window.addEventListener("pageshow", () => setTimeout(() => { fillSim(); renderAccountSim(); }, 50));
+fillSim(); renderAccountSim();
+(async () => {
+  try{
+    if(state.btTrades.length) return;
+    const have = PAIRS.filter(p => state.S.pairs[p].on && state.cacheMeta[p]);
+    if(!have.length) return;
+    $("simOut").innerHTML = `<div class="note">Loading your saved backtest…</div>`;
+    await runBacktest();
+  }catch(e){ $("simOut").innerHTML = `<div class="note">Couldn't reload the backtest (${esc(e.message||e)}). Press Run backtest.</div>`; }
+})();
+
+</script>
+</body>
+</html>
