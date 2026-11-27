@@ -1,29 +1,29 @@
 {
- "last_run": 29929845,
- "last_run_text": "2026-11-27 14:45 NY",
- "credits_today": 36,
+ "last_run": 29929900,
+ "last_run_text": "2026-11-27 15:40 NY",
+ "credits_today": 43,
  "pairs": {
   "EUR/USD": {
    "strategy": "Connors RSI-2 (H1)",
    "test": false,
    "spread": 1.0,
-   "price": 1.09362,
-   "bar_time": 29929775,
-   "note": "Waiting for the next hourly close",
+   "price": 1.09353,
+   "bar_time": 29929900,
+   "note": "",
    "eval": {
-    "close_time": 29929740,
-    "h1_start": 29929680,
+    "close_time": 29929860,
+    "h1_start": 29929800,
     "buy": [
      true,
      false,
-     true,
-     false
+     false,
+     true
     ],
     "sell": [
      true,
      true,
      false,
-     false
+     true
     ],
     "buy_labels": [
      "Hourly close in session",
@@ -38,9 +38,9 @@
      "ADX > 25"
     ],
     "signal": null,
-    "atr_pips": 11.028571428571514,
-    "rsi2": 1.3,
-    "adx": 24.1,
+    "atr_pips": 10.378571428571538,
+    "rsi2": 34.5,
+    "adx": 26.5,
     "trend": "down"
    }
   },
@@ -48,16 +48,16 @@
    "strategy": "Connors RSI-2 (H1)",
    "test": false,
    "spread": 1.4,
-   "price": 1.30946,
-   "bar_time": 29929775,
-   "note": "Waiting for the next hourly close",
+   "price": 1.30949,
+   "bar_time": 29929900,
+   "note": "",
    "eval": {
-    "close_time": 29929740,
-    "h1_start": 29929680,
+    "close_time": 29929860,
+    "h1_start": 29929800,
     "buy": [
      true,
      false,
-     true,
+     false,
      false
     ],
     "sell": [
@@ -79,9 +79,9 @@
      "ADX > 25"
     ],
     "signal": null,
-    "atr_pips": 13.05714285714275,
-    "rsi2": 1.4,
-    "adx": 24.1,
+    "atr_pips": 13.257142857142634,
+    "rsi2": 34.5,
+    "adx": 24.9,
     "trend": "down"
    }
   },
@@ -89,12 +89,12 @@
    "strategy": "Connors RSI-2 (H1)",
    "test": false,
    "spread": 1.6,
-   "price": 0.83634,
-   "bar_time": 29929775,
-   "note": "Waiting for the next hourly close",
+   "price": 0.83643,
+   "bar_time": 29929900,
+   "note": "",
    "eval": {
-    "close_time": 29929740,
-    "h1_start": 29929680,
+    "close_time": 29929860,
+    "h1_start": 29929800,
     "buy": [
      true,
      false,
@@ -120,9 +120,9 @@
      "ADX > 25"
     ],
     "signal": null,
-    "atr_pips": 12.757142857142927,
-    "rsi2": 66.9,
-    "adx": 25.9,
+    "atr_pips": 12.300000000000168,
+    "rsi2": 77.8,
+    "adx": 28.9,
     "trend": "down"
    }
   },
@@ -130,12 +130,12 @@
    "strategy": "Connors RSI-2 (H1)",
    "test": false,
    "spread": 1.3,
-   "price": 159.54363,
-   "bar_time": 29929775,
-   "note": "Waiting for the next hourly close",
+   "price": 159.5616,
+   "bar_time": 29929900,
+   "note": "",
    "eval": {
-    "close_time": 29929740,
-    "h1_start": 29929680,
+    "close_time": 29929860,
+    "h1_start": 29929800,
     "buy": [
      true,
      true,
@@ -161,9 +161,9 @@
      "ADX > 25"
     ],
     "signal": null,
-    "atr_pips": 9.996571428572006,
-    "rsi2": 33.3,
-    "adx": 14.4,
+    "atr_pips": 9.552500000000512,
+    "rsi2": 80.9,
+    "adx": 15.9,
     "trend": "up"
    }
   },
@@ -171,16 +171,16 @@
    "strategy": "Connors RSI-2 (H1)",
    "test": false,
    "spread": 1.6,
-   "price": 174.47689,
-   "bar_time": 29929775,
-   "note": "Waiting for the next hourly close",
+   "price": 174.4756,
+   "bar_time": 29929900,
+   "note": "",
    "eval": {
-    "close_time": 29929740,
-    "h1_start": 29929680,
+    "close_time": 29929860,
+    "h1_start": 29929800,
     "buy": [
      true,
      false,
-     true,
+     false,
      false
     ],
     "sell": [
@@ -202,9 +202,9 @@
      "ADX > 25"
     ],
     "signal": null,
-    "atr_pips": 17.612071428571394,
-    "rsi2": 2.5,
-    "adx": 19.2,
+    "atr_pips": 16.205357142857427,
+    "rsi2": 60.2,
+    "adx": 21.7,
     "trend": "down"
    }
   },
@@ -212,21 +212,21 @@
    "strategy": "NZD dip-buy (TEST)",
    "test": true,
    "spread": 1.6,
-   "price": 0.54633,
-   "bar_time": 29929775,
-   "note": "Waiting for the next hourly close",
+   "price": 0.54649,
+   "bar_time": 29929900,
+   "note": "",
    "eval": {
-    "close_time": 29929740,
-    "h1_start": 29929680,
+    "close_time": 29929860,
+    "h1_start": 29929800,
     "buy": [
-     true,
+     false,
      false,
      false,
      false,
      true
     ],
     "sell": [
-     true,
+     false,
      true,
      false,
      false,
@@ -247,9 +247,9 @@
      "Bearish 5-min candle"
     ],
     "signal": null,
-    "atr_pips": 8.428571428571372,
-    "rsi2": 24.0,
-    "stoch": 18.0,
+    "atr_pips": 7.521428571428441,
+    "rsi2": 57.2,
+    "stoch": 20.7,
     "trend": "down"
    }
   },
@@ -257,20 +257,20 @@
    "strategy": "EUR/CHF stoch reversal (TEST)",
    "test": true,
    "spread": 1.8,
-   "price": 0.91461,
-   "bar_time": 29929775,
-   "note": "Waiting for the next hourly close",
+   "price": 0.91465,
+   "bar_time": 29929900,
+   "note": "",
    "eval": {
-    "close_time": 29929740,
-    "h1_start": 29929680,
+    "close_time": 29929860,
+    "h1_start": 29929800,
     "buy": [
-     true,
      false,
+     true,
      false,
      false
     ],
     "sell": [
-     true,
+     false,
      false,
      false,
      false
@@ -288,10 +288,10 @@
      "Bollinger width top 30%"
     ],
     "signal": null,
-    "atr_pips": 11.228571428571714,
-    "stoch_k": 15.4,
-    "adx": 15.0,
-    "bb_width_rank": 18.2
+    "atr_pips": 10.864285714285913,
+    "stoch_k": 19.7,
+    "adx": 14.0,
+    "bb_width_rank": 22.2
    }
   }
  },
